@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIEM Console - Dashboard</title>
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self';">
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>SIEM Client Console</h1>
+            <div class="user-actions">
+                <button id="logoutButton">Logout</button>
+            </div>
+        </header>
+
+        <div id="message" class="hidden"></div>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="clientsTab">Clients</button>
+            <button class="tab-button" data-tab="manageTab">Manage Clients</button>
+        </div>
+
+        <div id="clientsTab" class="tab-content">
+            <h2>Client Dashboards</h2>
+            <div id="clientsList" class="clients-grid">
+                <p>Loading clients...</p>
+            </div>
+        </div>
+
+        <div id="manageTab" class="tab-content hidden">
+            <h2>Manage Clients</h2>
+
+            <div class="form-container">
+                <h3>Add New Client</h3>
+                <form id="addClientForm">
+                    <div class="form-group">
+                        <label for="clientName">Client Name:</label>
+                        <input type="text" id="clientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientUrl">Dashboard URL:</label>
+                        <input type="url" id="clientUrl" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientDescription">Description:</label>
+                        <input type="text" id="clientDescription">
+                    </div>
+                    <button type="submit">Add Client</button>
+                </form>
+            </div>
+
+            <h3>Existing Clients</h3>
+            <div id="clientsManagement" class="clients-list">
+                <p>Loading clients...</p>
+            </div>
+        </div>
+
+
+        <!-- Remove the standalone modal div and move it inside the manageTab -->
+        <div id="manageTab" class="tab-content hidden">
+            <h2>Manage Clients</h2>
+
+            <!-- Add New Client Form (keep existing) -->
+            <div class="form-container">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>Edit Client</h2>
+                    <form id="editClientForm">
+                        <input type="hidden" id="editClientId">
+                        <div class="form-group">
+                            <label for="editClientName">Client Name:</label>
+                            <input type="text" id="editClientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editClientUrl">Dashboard URL:</label>
+                            <input type="url" id="editClientUrl" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editClientDescription">Description:</label>
+                            <input type="text" id="editClientDescription">
+                        </div>
+                        <button type="submit">Update Client</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3>Existing Clients</h3>
+            <div id="clientsManagement" class="clients-list">
+                <p>Loading clients...</p>
+            </div>
+
+            <!-- Edit Client Modal - moved here -->
+            <div id="editClientModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>Edit Client</h2>
+                    <form id="editClientForm">
+                        <input type="hidden" id="editClientId">
+                        <div class="form-group">
+                            <label for="editClientName">Client Name:</label>
+                            <input type="text" id="editClientName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editClientUrl">Dashboard URL:</label>
+                            <input type="url" id="editClientUrl" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editClientDescription">Description:</label>
+                            <input type="text" id="editClientDescription">
+                        </div>
+                        <button type="submit">Update Client</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="../scripts/auth.js"></script>
+    <script src="../scripts/dashboard.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+siem-client-console/
+├── backend/
+│   ├── config/
+│   │   └── clients.js
+|   ├── middleware/
+│   │   └── auth.js
+│   ├── node_modules/
+│   ├── routes/
+│   │   ├── auth.js
+│   │   └── admin.js
+│   │   └── clients.js
+│   ├── app.js
+│   ├── package.json
+│   └── .env
+│   └── app.js
+│   └── package-lock.json
+│   └── package.json
+└── frontend/
+    ├── public/
+    │   ├── index.html
+    │   ├── login.html
+    │   └── dashboard.html
+    ├── scripts/
+    │   ├── auth.js
+    │   └── dashboard.js
+    │   └── main.js
+    └── styles/
+        └── main.css
