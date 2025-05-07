@@ -6,11 +6,10 @@ siem-client-console/
 │   │   └── auth.js
 │   ├── node_modules/
 │   ├── routes/
-│   │   ├── auth.js
-│   │   └── admin.js
+│   │   ├── admin.js
+│   │   └── auth.js
 │   │   └── clients.js
 │   ├── app.js
-│   ├── package.json
 │   └── .env
 │   └── app.js
 │   └── package-lock.json
@@ -19,6 +18,8 @@ siem-client-console/
     ├── public/
     │   ├── index.html
     │   ├── login.html
+    │   ├── client-icon.png
+    │   ├── desktop-bg.jpg    
     │   └── dashboard.html
     ├── scripts/
     │   ├── auth.js

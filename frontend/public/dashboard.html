@@ -1,43 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIEM Console - Dashboard</title>
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <link rel="stylesheet" href="../styles/main.css">
 </head>
-
-<body>
-    <div class="container">
-        <header>
-            <h1>SIEM Client Console</h1>
-            <div class="user-actions">
-                <button id="logoutButton">Logout</button>
+<body class="desktop-bg">
+    <div class="desktop-container">
+        <header class="taskbar">
+            <div class="taskbar-left">
+                <h1>SIEM Client Console</h1>
+            </div>
+            <div class="taskbar-right">
+                <button id="refreshBtn" class="taskbar-btn" title="Refresh">
+                    <span>⟳</span> Refresh
+                </button>
+                <button id="manageClientsBtn" class="taskbar-btn" title="Manage Clients">
+                    <span>⚙</span> Manage Clients
+                </button>
+                <button id="logoutButton" class="taskbar-btn" title="Logout">
+                    <span>⎋</span> Logout
+                </button>
             </div>
         </header>
-
-        <div id="message" class="hidden"></div>
-
-        <div class="tabs">
-            <button class="tab-button active" data-tab="clientsTab">Clients</button>
-            <button class="tab-button" data-tab="manageTab">Manage Clients</button>
-        </div>
-
-        <div id="clientsTab" class="tab-content">
-            <h2>Client Dashboards</h2>
-            <div id="clientsList" class="clients-grid">
-                <p>Loading clients...</p>
+        
+        <div id="message" class="message hidden"></div>
+        
+        <!-- Main Content Area -->
+        <div id="mainContent">
+            <!-- Desktop View (Default) -->
+            <div id="desktopView" class="desktop-icons"></div>
+            
+            <!-- Management View (Hidden by default) -->
+            <div id="managementView" class="management-panel hidden">
+                <div class="panel-header">
+                    <h2>Client Management</h2>
+                    <button id="addClientBtn" class="action-btn">+ Add New Client</button>
+                </div>
+                <div class="clients-table-container">
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>URL</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody">
+                            <!-- Clients will be loaded here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-        <div id="manageTab" class="tab-content hidden">
-            <h2>Manage Clients</h2>
-
-            <div class="form-container">
-                <h3>Add New Client</h3>
+        
+        <!-- Client Actions Modal -->
+        <div id="clientActionsModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2 id="clientModalTitle">Client Actions</h2>
+                <div class="modal-actions">
+                    <button id="viewClientBtn" class="action-btn">View Dashboard</button>
+                    <button id="editClientBtn" class="action-btn">Edit Client</button>
+                    <button id="deleteClientBtn" class="action-btn danger">Delete Client</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Edit Client Modal -->
+        <div id="editClientModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Edit Client</h2>
+                <form id="editClientForm">
+                    <input type="hidden" id="editClientId">
+                    <div class="form-group">
+                        <label for="editClientName">Client Name:</label>
+                        <input type="text" id="editClientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editClientUrl">Dashboard URL:</label>
+                        <input type="url" id="editClientUrl" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editClientDescription">Description:</label>
+                        <input type="text" id="editClientDescription">
+                    </div>
+                    <button type="submit" class="submit-btn">Update Client</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Add Client Modal -->
+        <div id="addClientModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Add New Client</h2>
                 <form id="addClientForm">
                     <div class="form-group">
                         <label for="clientName">Client Name:</label>
@@ -51,79 +112,13 @@
                         <label for="clientDescription">Description:</label>
                         <input type="text" id="clientDescription">
                     </div>
-                    <button type="submit">Add Client</button>
+                    <button type="submit" class="submit-btn">Add Client</button>
                 </form>
             </div>
-
-            <h3>Existing Clients</h3>
-            <div id="clientsManagement" class="clients-list">
-                <p>Loading clients...</p>
-            </div>
         </div>
-
-
-        <!-- Remove the standalone modal div and move it inside the manageTab -->
-        <div id="manageTab" class="tab-content hidden">
-            <h2>Manage Clients</h2>
-
-            <!-- Add New Client Form (keep existing) -->
-            <div class="form-container">
-                <div class="modal-content">
-                    <span class="close-modal">&times;</span>
-                    <h2>Edit Client</h2>
-                    <form id="editClientForm">
-                        <input type="hidden" id="editClientId">
-                        <div class="form-group">
-                            <label for="editClientName">Client Name:</label>
-                            <input type="text" id="editClientName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editClientUrl">Dashboard URL:</label>
-                            <input type="url" id="editClientUrl" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editClientDescription">Description:</label>
-                            <input type="text" id="editClientDescription">
-                        </div>
-                        <button type="submit">Update Client</button>
-                    </form>
-                </div>
-            </div>
-
-            <h3>Existing Clients</h3>
-            <div id="clientsManagement" class="clients-list">
-                <p>Loading clients...</p>
-            </div>
-
-            <!-- Edit Client Modal - moved here -->
-            <div id="editClientModal" class="modal hidden">
-                <div class="modal-content">
-                    <span class="close-modal">&times;</span>
-                    <h2>Edit Client</h2>
-                    <form id="editClientForm">
-                        <input type="hidden" id="editClientId">
-                        <div class="form-group">
-                            <label for="editClientName">Client Name:</label>
-                            <input type="text" id="editClientName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editClientUrl">Dashboard URL:</label>
-                            <input type="url" id="editClientUrl" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editClientDescription">Description:</label>
-                            <input type="text" id="editClientDescription">
-                        </div>
-                        <button type="submit">Update Client</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-
     </div>
-
+    
     <script src="../scripts/auth.js"></script>
     <script src="../scripts/dashboard.js"></script>
-</body> 
+</body>
 </html>

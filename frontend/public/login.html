@@ -1,32 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIEM Console - Login</title>
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline';">
     <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        body {
+            background: linear-gradient(-45deg, #2c3e50, #3498db, #9b59b6, #1abc9c);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>SIEM Client Console</h1>
+    <div class="login-container">
         <div id="message" class="hidden"></div>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
+        <div class="login-card">
+            <h1>SIEM Console</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="username" required placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" required placeholder="Password">
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+            </form>
+        </div>
     </div>
     <script src="../scripts/auth.js"></script>
 </body>
-
 </html>
