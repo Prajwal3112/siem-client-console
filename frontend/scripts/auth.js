@@ -79,3 +79,5 @@
         checkAuth: checkAuth,
         logout: logout
     };
+    ///////////
+    

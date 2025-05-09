@@ -1,14 +1,14 @@
 module.exports = [
     {
         "id": 1,
-        "name": "Client A",
+        "name": "Vgipl",
         "url": "http://192.168.1.64:3000",
-        "description": "Financial Services"
+        "description": "SIEM"
     },
     {
         "id": 2,
-        "name": "Client B",
+        "name": "Buldhana",
         "url": "http://103.76.143.84:3000",
-        "description": "Healthcare Provider"
+        "description": "SIEM - Buldhana"
     }
 ];

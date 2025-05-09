@@ -13,6 +13,68 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 7000;
 
+///////////////////////////////////////
+
+const axios = require('axios');
+
+
+app.use(express.json());
+
+// API Route: Fetch log count from Graylog
+app.get('/api/log-count', async (req, res) => {
+    try {
+        // Graylog server configuration
+        const graylogUrl = "http://192.168.1.68:9000/api/search/universal/absolute";
+
+        // Generate timestamps for the last 10 seconds
+        const now = new Date();
+        const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000); // 5 hours ago
+        const tenSecondsAgo = new Date(fiveHoursAgo.getTime() + 10 * 1000); // 10 seconds after 5 hours ago
+
+        const from = fiveHoursAgo.toISOString(); // From 5 hours ago
+        const to = now.toISOString(); // To current time
+
+        // Query parameters
+        const queryParams = {
+            query: "*",
+            from: from,
+            to: to,
+            limit: 0, // Only fetch the total count
+            filter: "streams:67c7e72cb78cd271d6481222"
+        };
+
+        console.log("Fetching logs with parameters:", queryParams);
+
+        // Make the request to Graylog
+        const response = await axios.get(graylogUrl, {
+            auth: { username: "admin", password: "Virtual%09" }, // Update with correct credentials
+            params: queryParams,
+            headers: { Accept: "application/json" }
+        });
+
+        // Extract total log count
+        const totalLogCount = response.data.total_results || 0;
+        res.json({ totalLogCount }); // Return total log count as JSON
+    } catch (error) {
+        console.error("Error fetching logs:", error.message);
+
+        if (error.response) {
+            console.error("Response Status:", error.response.status);
+            console.error("Response Headers:", error.response.headers);
+            console.error("Response Data:", error.response.data);
+        } else {
+            console.error("No response received from Graylog.");
+        }
+
+        res.status(500).json({ error: "Failed to fetch logs" }); // Ensure error response is JSON
+    }
+});
+
+// Serve static files from the frontend directory
+app.use(express.static('frontend'));
+
+
+/////////////////////////////////////
 // Security middleware
 app.use(helmet());
 app.use(cors({

@@ -15,9 +15,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set up form submission handlers
     setupFormHandlers();
     
+    // Add log count display before loading clients
+    addLogCountDisplay();
+    
     // Load clients for desktop view
     await loadClients();
+
+    // Start updating log count periodically
+    updateLogCountEvery10Seconds();
 });
+
+// Function to add log count display to the DOM
+function addLogCountDisplay() {
+    const desktopView = document.getElementById('desktopView');
+    
+    // Create log count display element
+    const logCountDisplay = document.createElement('div');
+    logCountDisplay.id = 'logCountDisplay';
+    logCountDisplay.className = 'log-count-container';
+    logCountDisplay.innerHTML = '<div class="loading">Fetching log count...</div>';
+    
+    // Make sure the desktop view has position relative to maintain the grid layout
+    if (window.getComputedStyle(desktopView).position === 'static') {
+        desktopView.style.position = 'relative';
+    }
+    
+    // Insert at the beginning of desktopView
+    desktopView.insertBefore(logCountDisplay, desktopView.firstChild);
+}
 
 function initializeUI() {
     // Navigation and action buttons
@@ -80,10 +105,18 @@ function setupFormHandlers() {
 }
 
 async function loadClients() {
-    const clientsGrid = document.getElementById('desktopView');
-    if (!clientsGrid) return;
-
-    clientsGrid.innerHTML = '<div class="loading">Loading clients...</div>';
+    const desktopView = document.getElementById('desktopView');
+    if (!desktopView) return;
+    
+    // Check if there are any existing client icons to remove (excluding the log count display)
+    const existingClients = desktopView.querySelectorAll('.desktop-icon, .loading, .no-clients, .error');
+    existingClients.forEach(element => element.remove());
+    
+    // Add loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'loading';
+    loadingIndicator.textContent = 'Loading clients...';
+    desktopView.appendChild(loadingIndicator);
 
     try {
         const response = await fetch('/api/clients', { credentials: 'include' });
@@ -92,25 +125,38 @@ async function loadClients() {
         
         const clients = await response.json();
 
+        // Remove loading indicator
+        loadingIndicator.remove();
+
         if (clients.length === 0) {
-            clientsGrid.innerHTML = '<div class="no-clients">No clients found. Click "Manage Clients" to add clients.</div>';
+            const noClientsMessage = document.createElement('div');
+            noClientsMessage.className = 'no-clients';
+            noClientsMessage.textContent = 'No clients found. Click "Manage Clients" to add clients.';
+            desktopView.appendChild(noClientsMessage);
             return;
         }
 
-        clientsGrid.innerHTML = '';
+        // Create client icons in the same grid structure as before
         clients.forEach(client => {
             const clientIcon = document.createElement('div');
             clientIcon.className = 'desktop-icon';
             clientIcon.innerHTML = `
-                <img src="client-icon.png" alt="${escapeHtml(client.name)}">
+                <img src="user.png" alt="${escapeHtml(client.name)}">
                 <span>${escapeHtml(client.name)}</span>
             `;
             clientIcon.addEventListener('click', () => openClientDashboard(client));
-            clientsGrid.appendChild(clientIcon);
+            desktopView.appendChild(clientIcon);
         });
     } catch (error) {
         console.error('Error loading clients:', error);
-        clientsGrid.innerHTML = '<div class="error">Error loading clients. Click Refresh to try again.</div>';
+        
+        // Remove loading indicator
+        loadingIndicator.remove();
+        
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'error';
+        errorMessage.textContent = 'Error loading clients. Click Refresh to try again.';
+        desktopView.appendChild(errorMessage);
     }
 }
 
@@ -329,4 +375,62 @@ function escapeHtml(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+// Function to fetch log count from backend
+async function fetchLogCount() {
+    try {
+        console.log("Fetching log count...");
+        const response = await fetch('/api/log-count');
+
+        if (!response.ok) {
+            console.error(`Failed to fetch log count. Status: ${response.status}`);
+            return 0;
+        }
+
+        const contentType = response.headers.get('Content-Type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.error("Unexpected response format. Expected JSON.");
+            console.error("Response received:", await response.text());
+            return 0;
+        }
+
+        const data = await response.json();
+        console.log("Log count received:", data.totalLogCount);
+        return data.totalLogCount || 0;
+    } catch (error) {
+        console.error("Error fetching log count:", error);
+        return 0;
+    }
+}
+
+// Function to update log count in the UI every 10 seconds
+function updateLogCountEvery10Seconds() {
+    const logCountDisplay = document.getElementById('logCountDisplay');
+    if (!logCountDisplay) return;
+    
+    // Apply styles to make it stand out but not interfere with grid layout
+    logCountDisplay.style.width = '100%';
+    logCountDisplay.style.padding = '10px';
+    logCountDisplay.style.marginBottom = '15px';
+    
+    async function refreshLogCount() {
+        const logCount = await fetchLogCount();
+        logCountDisplay.innerHTML = `
+            <div class="log-count-info" style="
+                background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+                border-radius: 12px;
+                padding: 15px 20px;
+                color: white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            ">
+                <h3 style="margin: 0; padding: 0; font-size: 1.5rem;">System Status</h3>
+                <p style="margin: 5px 0 0 0; font-size: 1.2rem; font-weight: 500;">Total Logs In last 10s: ${logCount}</p>
+            </div>
+        `;
+    }
+
+    // Refresh log count immediately and every 10 seconds
+    refreshLogCount();
+    setInterval(refreshLogCount, 10000);
 }

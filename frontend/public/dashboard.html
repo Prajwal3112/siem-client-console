@@ -6,11 +6,13 @@
     <title>SIEM Console - Dashboard</title>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="icon" type="image/png" href="cybersentinel_fevicon.png">
 </head>
-<body class="desktop-bg">
-    <div class="desktop-container">
+<body class="dashboard-bg">
+    <div class="dashboard-container">
         <header class="taskbar">
             <div class="taskbar-left">
+                <img src="../cybersentinel_fevicon.png" alt="CyberSentinel Logo" class="logo" />
                 <h1>SIEM Client Console</h1>
             </div>
             <div class="taskbar-right">
@@ -20,6 +22,7 @@
                 <button id="manageClientsBtn" class="taskbar-btn" title="Manage Clients">
                     <span>⚙</span> Manage Clients
                 </button>
+
                 <button id="logoutButton" class="taskbar-btn" title="Logout">
                     <span>⎋</span> Logout
                 </button>
@@ -27,17 +30,19 @@
         </header>
         
         <div id="message" class="message hidden"></div>
-        
+
         <!-- Main Content Area -->
-        <div id="mainContent">
+        <main id="mainContent">
             <!-- Desktop View (Default) -->
-            <div id="desktopView" class="desktop-icons"></div>
+            <h2>Clients Detail</h2>
+            
+            <section id="desktopView" class="desktop-icons"></section>
             
             <!-- Management View (Hidden by default) -->
-            <div id="managementView" class="management-panel hidden">
+            <section id="managementView" class="management-panel hidden">
                 <div class="panel-header">
                     <h2>Client Management</h2>
-                    <button id="addClientBtn" class="action-btn">+ Add New Client</button>
+                    <button id="addClientBtn" class="action-btn primary-btn">+ Add New Client</button>
                 </div>
                 <div class="clients-table-container">
                     <table class="clients-table">
@@ -54,8 +59,8 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
+            </section>
+        </main>
         
         <!-- Client Actions Modal -->
         <div id="clientActionsModal" class="modal hidden">
@@ -65,7 +70,7 @@
                 <div class="modal-actions">
                     <button id="viewClientBtn" class="action-btn">View Dashboard</button>
                     <button id="editClientBtn" class="action-btn">Edit Client</button>
-                    <button id="deleteClientBtn" class="action-btn danger">Delete Client</button>
+                    <button id="deleteClientBtn" class="action-btn danger-btn">Delete Client</button>
                 </div>
             </div>
         </div>
@@ -89,7 +94,7 @@
                         <label for="editClientDescription">Description:</label>
                         <input type="text" id="editClientDescription">
                     </div>
-                    <button type="submit" class="submit-btn">Update Client</button>
+                    <button type="submit" class="submit-btn primary-btn">Update Client</button>
                 </form>
             </div>
         </div>
@@ -112,13 +117,24 @@
                         <label for="clientDescription">Description:</label>
                         <input type="text" id="clientDescription">
                     </div>
-                    <button type="submit" class="submit-btn">Add Client</button>
+                    <button type="submit" class="submit-btn primary-btn">Add Client</button>
                 </form>
             </div>
         </div>
+        <div class="mt-8">
+            <footer class="bg-gray-800 text-white py-6">
+                <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-center md:text-left mb-4 md:mb-0 w-full md:w-auto">
+                        <p class="text-sm font-semibold">&copy; 2025 SIEM Client Console</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
-    
+   
     <script src="../scripts/auth.js"></script>
     <script src="../scripts/dashboard.js"></script>
+    
+    
 </body>
 </html>
