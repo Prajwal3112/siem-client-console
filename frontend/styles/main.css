@@ -562,3 +562,108 @@ button:hover {
 .hidden {
     display: none !important;
 }
+
+/* Add these new styles to your existing main.css */
+
+/* Dashboard Background */
+.dashboard-bg {
+    background: url('desktop-bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    overflow: auto;
+}
+
+.dashboard-container {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    min-height: 100vh;
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+/* Client Card Styles */
+.client-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.client-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.client-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.client-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.client-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.client-url {
+    font-size: 14px;
+    opacity: 0.8;
+    word-break: break-all;
+}
+
+.client-description {
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+.client-status {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-active {
+    background-color: #2ecc71;
+}
+
+.status-inactive {
+    background-color: #e74c3c;
+}
