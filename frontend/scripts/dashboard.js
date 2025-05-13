@@ -61,23 +61,43 @@ function setupFormHandlers() {
         editClientForm.addEventListener('submit', editClientSubmitHandler);
     }
 }
+// Inject styles for client-card hover border effect
+const style = document.createElement('style');
+style.textContent = `
+    .client-card {
+        position: relative;
+        padding: 1rem;
+        border: 2px solid transparent;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .client-card:hover {
+        border-color:rgb(252, 253, 253);
+        cursor: pointer;
+        box-shadow: 0 0 0 4px rgba(248, 245, 245, 0.06);
+    }
+`;
+document.head.appendChild(style);
+
+// Your original loadClients function with no change to logic
 async function loadClients() {
     const dashboardGrid = document.getElementById('dashboardView');
     if (!dashboardGrid) return;
     dashboardGrid.innerHTML = '<div class="loading">Loading clients...</div>';
     try {
-        const response = await fetch('/api/clients', { credentials: 'include' });    
-        if (!response.ok) throw new Error('Failed to load clients');      
+        const response = await fetch('/api/clients', { credentials: 'include' });
+        if (!response.ok) throw new Error('Failed to load clients');
         const clients = await response.json();
         if (clients.length === 0) {
             dashboardGrid.innerHTML = '<div class="no-clients">No clients found. Click "Manage Clients" to add clients.</div>';
             return;
         }
-        dashboardGrid.innerHTML = '';      
+        dashboardGrid.innerHTML = '';
         for (const client of clients) {
             let logCount = 'Loading...';
             let lastActive = 'Just now';
-            
+
             const clientCard = document.createElement('div');
             clientCard.className = 'client-card';
             clientCard.dataset.clientId = client.id;
@@ -108,6 +128,7 @@ async function loadClients() {
             `;
             clientCard.addEventListener('click', () => openClientDashboard(client));
             dashboardGrid.appendChild(clientCard);
+
             // Fetch log count for this client
             fetchLogCount(client.id);
         }
@@ -117,6 +138,7 @@ async function loadClients() {
         dashboardGrid.innerHTML = '<div class="error">Error loading clients. Click Refresh to try again.</div>';
     }
 }
+
 async function fetchLogCount(clientId) {
     try {
         const response = await fetch(`/api/clients/${clientId}/logs`, { 
