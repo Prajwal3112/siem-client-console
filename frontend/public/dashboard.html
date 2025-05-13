@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIEM Console - Dashboard</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <link rel="stylesheet" href="../styles/main.css">
 </head>
+
 <body class="dashboard-bg">
     <div class="dashboard-container">
         <header class="taskbar">
@@ -25,16 +28,16 @@
                 </button>
             </div>
         </header>
-        
+
         <div id="message" class="message hidden"></div>
-        
+
         <!-- Main Content Area -->
         <div id="mainContent">
             <!-- Dashboard View (Default) -->
             <div id="dashboardView" class="dashboard-grid">
                 <!-- Client cards will be loaded here dynamically -->
             </div>
-            
+
             <!-- Management View (Hidden by default) -->
             <div id="managementView" class="management-panel hidden">
                 <div class="panel-header">
@@ -58,7 +61,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Client Actions Modal -->
         <div id="clientActionsModal" class="modal hidden">
             <div class="modal-content">
@@ -71,12 +74,13 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Edit Client Modal -->
         <div id="editClientModal" class="modal hidden">
             <div class="modal-content">
                 <span class="close-modal">&times;</span>
                 <h2>Edit Client</h2>
+                <!-- Change this form ID from addClientForm to editClientForm -->
                 <form id="editClientForm">
                     <input type="hidden" id="editClientId">
                     <div class="form-group">
@@ -91,11 +95,19 @@
                         <label for="editClientDescription">Description:</label>
                         <input type="text" id="editClientDescription">
                     </div>
+                    <!-- Add Graylog configuration fields -->
+                    <div class="form-group">
+                        <label>Graylog Configuration</label>
+                        <input type="text" id="editGraylogHost" placeholder="Host:Port">
+                        <input type="text" id="editGraylogUsername" placeholder="Username">
+                        <input type="password" id="editGraylogPassword" placeholder="Password">
+                        <input type="text" id="editGraylogStreamId" placeholder="Stream ID">
+                    </div>
                     <button type="submit" class="submit-btn">Update Client</button>
                 </form>
             </div>
         </div>
-        
+
         <!-- Add Client Modal -->
         <div id="addClientModal" class="modal hidden">
             <div class="modal-content">
@@ -114,13 +126,22 @@
                         <label for="clientDescription">Description:</label>
                         <input type="text" id="clientDescription">
                     </div>
+                    <!-- Add Graylog configuration fields -->
+                    <div class="form-group">
+                        <label>Graylog Configuration</label>
+                        <input type="text" id="graylogHost" placeholder="Host:Port">
+                        <input type="text" id="graylogUsername" placeholder="Username">
+                        <input type="password" id="graylogPassword" placeholder="Password">
+                        <input type="text" id="graylogStreamId" placeholder="Stream ID">
+                    </div>
                     <button type="submit" class="submit-btn">Add Client</button>
                 </form>
             </div>
         </div>
     </div>
-    
+
     <script src="../scripts/auth.js"></script>
     <script src="../scripts/dashboard.js"></script>
 </body>
+
 </html>

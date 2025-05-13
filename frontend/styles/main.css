@@ -346,13 +346,24 @@ button:hover {
 }
 
 .taskbar {
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.taskbar h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    background: linear-gradient(to right, #fff, #3498db);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
 }
 
 .taskbar-btn {
@@ -364,10 +375,31 @@ button:hover {
     border-radius: 4px;
     cursor: pointer;
 }
-
+.taskbar-right {
+    display: flex;
+    gap: 15px;
+}
+.taskbar-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
 .taskbar-btn:hover {
     background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
+.taskbar-btn span {
+    font-size: 1.1rem;
+}
+
 
 .desktop-icons {
     display: grid;
@@ -453,16 +485,14 @@ button:hover {
     background: #c0392b;
 }
 
-/* Add these styles to your main.css file */
-
 /* Management Panel Styles */
 .management-panel {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
     margin: 20px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    max-height: calc(100vh - 120px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    max-height: calc(100vh - 150px);
     overflow-y: auto;
 }
 
@@ -471,13 +501,14 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .panel-header h2 {
     margin: 0;
-    color: var(--primary-color);
+    color: white;
+    font-size: 1.5rem;
 }
 
 .clients-table-container {
@@ -537,24 +568,25 @@ button:hover {
 
 /* For smaller screens */
 @media (max-width: 768px) {
-    .panel-header {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+    
+    .taskbar {
         flex-direction: column;
-        align-items: flex-start;
         gap: 10px;
+        padding: 15px;
     }
     
-    .clients-table th,
-    .clients-table td {
-        padding: 8px;
-    }
-    
-    .table-actions {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
-    .table-btn {
+    .taskbar-right {
         width: 100%;
+        justify-content: space-between;
+    }
+    
+    .taskbar-btn {
+        flex: 1;
+        justify-content: center;
     }
 }
 
@@ -567,25 +599,29 @@ button:hover {
 
 /* Dashboard Background */
 .dashboard-bg {
-    background: url('desktop-bg.jpg') no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     min-height: 100vh;
-    overflow: auto;
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .dashboard-container {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(10px);
     min-height: 100vh;
+    color: white;
 }
-
 /* Dashboard Grid Layout */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 25px;
     padding: 30px;
-    margin-top: 20px;
 }
 
 /* Client Card Styles */
@@ -599,12 +635,23 @@ button:hover {
     cursor: pointer;
     color: white;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
 }
 
 .client-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-5px) scale(1.02);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+.client-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
 }
 
 .client-card-header {
@@ -623,33 +670,40 @@ button:hover {
     align-items: center;
     justify-content: center;
     font-size: 24px;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
 }
 
 .client-name {
-    font-size: 18px;
+    font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 5px;
+    color: white;
 }
 
 .client-url {
-    font-size: 14px;
+    font-size: 0.9rem;
     opacity: 0.8;
     word-break: break-all;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .client-description {
-    margin-top: 15px;
-    font-size: 14px;
+    margin: 15px 0;
+    font-size: 0.95rem;
     line-height: 1.5;
     opacity: 0.9;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .client-status {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
 }
 
 .status-indicator {
@@ -662,27 +716,164 @@ button:hover {
 
 .status-active {
     background-color: #2ecc71;
+    box-shadow: 0 0 10px #2ecc71;
 }
 
 .status-inactive {
     background-color: #e74c3c;
 }
+
 /* Log count styling */
+.log-graph-container {
+    margin: 15px 0;
+    width: 100%;
+}
+.log-graph {
+    height: 30px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
 .log-count-wrapper {
     font-weight: 600;
+    display: flex;
+    align-items: center;
 }
 
 .log-count {
     display: inline-block;
     background: rgba(255, 255, 255, 0.2);
-    padding: 2px 6px;
-    border-radius: 10px;
+    padding: 2px 10px;
+    border-radius: 20px;
     font-weight: 700;
-    min-width: 30px;
+    min-width: 40px;
     text-align: center;
+    margin-left: 5px;
 }
 
 .last-updated {
-    font-size: 12px;
+    font-size: 0.8rem;
     opacity: 0.7;
+}
+/* .log-graph {
+  height: 30px;
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  margin-top: 10px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+} */
+
+.graph-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.timer-line {
+    position: absolute;
+    height: 100%;
+    width: 50px;
+    background: rgba(255, 255, 255, 0.8);
+    left: 0;
+    animation: timerAnimation 10s linear infinite;
+}
+
+@keyframes timerAnimation {
+  0% { left: 0; }
+  100% { left: 100%; }
+}
+
+/* Add to main.css */
+.log-graph-container {
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* .log-graph {
+    height: 30px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 5px;
+} */
+
+/* .graph-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    width: 0%;
+    transition: width 0.5s ease;
+} */
+
+/* .timer-line {
+    position: absolute;
+    height: 100%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    left: 0;
+    animation: timerAnimation 10s linear infinite;
+} */
+
+.graph-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0 5px;
+}
+
+@keyframes timerAnimation {
+    0% { left: 0; }
+    100% { left: 100%; }
+}
+
+/* For the historical log graph */
+.history-graph {
+    height: 80px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 15px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.history-bars {
+    display: flex;
+    height: 100%;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.history-bar {
+    flex: 1;
+    background: linear-gradient(to top, #3498db, #2ecc71);
+    min-width: 5px;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.5s ease;
+    position: relative;
+}
+
+.history-bar::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.history-bar:hover::after {
+    opacity: 1;
 }

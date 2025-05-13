@@ -1,3 +1,4 @@
+const clientHistory = {};
 document.addEventListener('DOMContentLoaded', async () => {
     // Check authentication
     const authenticated = await window.__auth.checkAuth();
@@ -10,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set up modal close handlers
     setupModalCloseHandlers();
     // Set up form submission handlers
-    setupFormHandlers();  
+    setupFormHandlers();
     // Load clients for desktop view
     await loadClients();
 });
@@ -24,7 +25,7 @@ function initializeUI() {
 
 function toggleManagementView() {
     const desktopView = document.getElementById('dashboardView');
-    const managementView = document.getElementById('managementView'); 
+    const managementView = document.getElementById('managementView');
     if (desktopView.classList.contains('hidden')) {
         // Switch to desktop view
         managementView.classList.add('hidden');
@@ -33,7 +34,7 @@ function toggleManagementView() {
     } else {
         desktopView.classList.add('hidden');
         managementView.classList.remove('hidden');
-        document.getElementById('manageClientsBtn').innerHTML = '<span>⌂</span> Desktop View'; 
+        document.getElementById('manageClientsBtn').innerHTML = '<span>⌂</span> Desktop View';
         loadClientsTable();
     }
 }
@@ -46,7 +47,7 @@ function setupModalCloseHandlers() {
         });
     });
     document.querySelectorAll('.close-modal').forEach(closeBtn => {
-        closeBtn.addEventListener('click', function() {
+        closeBtn.addEventListener('click', function () {
             this.closest('.modal').classList.add('hidden');
         });
     });
@@ -66,24 +67,23 @@ async function loadClients() {
     if (!dashboardGrid) return;
     dashboardGrid.innerHTML = '<div class="loading">Loading clients...</div>';
     try {
-        const response = await fetch('/api/clients', { credentials: 'include' });    
-        if (!response.ok) throw new Error('Failed to load clients');      
+        const response = await fetch('/api/clients', { credentials: 'include' });
+        if (!response.ok) throw new Error('Failed to load clients');
         const clients = await response.json();
         if (clients.length === 0) {
             dashboardGrid.innerHTML = '<div class="no-clients">No clients found. Click "Manage Clients" to add clients.</div>';
             return;
         }
-        dashboardGrid.innerHTML = '';      
+        dashboardGrid.innerHTML = '';
         for (const client of clients) {
             let logCount = 'Loading...';
             let lastActive = 'Just now';
-            
             const clientCard = document.createElement('div');
             clientCard.className = 'client-card';
             clientCard.dataset.clientId = client.id;
             clientCard.innerHTML = `
                 <div class="client-card-header">
-                    <div class="client-icon">
+                    <div class="client-icon" style="background: ${getRandomColor()}">
                         ${client.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -94,18 +94,67 @@ async function loadClients() {
                 <div class="client-description">
                     ${escapeHtml(client.description || 'No description available')}
                 </div>
+                    
                 <div class="client-status">
                     <span>
                         <span class="status-indicator status-active"></span>
-                        Online
+                        <span class="status-text">Active</span>
                     </span>
-                    <span class="log-count-wrapper">Logs (10s): <span class="log-count">Loading...</span></span>
+                    <span class="log-count-wrapper">
+                        Logs (10s): <span class="log-count">0</span>
+                    </span>
                 </div>
+                    
+                <!-- Current Log Graph -->
+                <div class="log-graph-container">
+                    <div class="log-graph">
+                        <div class="graph-bar" style="width: 0%"></div>
+                        <div class="timer-line"></div>
+                    </div>
+                    <div class="graph-labels">
+                        <span>0</span>
+                        <span>50</span>
+                        <span>100+</span>
+                    </div>
+                </div>
+                    
+                <!-- Historical Log Graph (Last 60 seconds) -->
+                <div class="history-graph">
+                    <div class="graph-labels" style="padding-bottom: 5px;">
+                        <span>Logs (Last 60s)</span>
+                        <span class="history-average">Avg: 0</span>
+                    </div>
+                    <div class="history-bars" id="historyGraph-${client.id}">
+                        <!-- Bars will be added dynamically -->
+                    </div>
+                </div>
+                    
                 <div class="client-status">
-                    <span>Last active: ${lastActive}</span>
-                    <span class="last-updated">Last updated: Just now</span>
+                    <span>Last active: Just now</span>
+                    <span class="last-updated">Updating...</span>
                 </div>
             `;
+
+            function getRandomColor() {
+                const colors = [
+                    'linear-gradient(135deg, #3498db, #2ecc71)',
+                    'linear-gradient(135deg, #e74c3c, #f39c12)',
+                    'linear-gradient(135deg, #9b59b6, #3498db)',
+                    'linear-gradient(135deg, #1abc9c, #2ecc71)',
+                    'linear-gradient(135deg, #f1c40f, #e67e22)'
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            const historyGraph = clientCard.querySelector(`#historyGraph-${client.id}`);
+            for (let i = 0; i < 12; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'history-bar';
+                bar.style.height = '0%';
+                bar.dataset.count = '0';
+                historyGraph.appendChild(bar);
+            }
+
             clientCard.addEventListener('click', () => openClientDashboard(client));
             dashboardGrid.appendChild(clientCard);
             // Fetch log count for this client
@@ -129,13 +178,51 @@ async function fetchLogCount(clientId) {
         if (data.success) {
             const clientCard = document.querySelector(`.client-card[data-client-id="${clientId}"]`);
             if (clientCard) {
+                // Update current log count
+                const logCount = data.logCount || 0;
                 const logCountElement = clientCard.querySelector('.log-count');
+                const graphBar = clientCard.querySelector('.graph-bar');
+                
                 if (logCountElement) {
-                    logCountElement.textContent = data.logCount;
+                    logCountElement.textContent = logCount;
                 }
+                
+                if (graphBar) {
+                    const percentage = Math.min(100, logCount);
+                    graphBar.style.width = `${percentage}%`;
+                }
+                
+                // Update historical data
+                if (!clientHistory[clientId]) {
+                    clientHistory[clientId] = [];
+                }
+                
+                clientHistory[clientId].push(logCount);
+                if (clientHistory[clientId].length > 12) {
+                    clientHistory[clientId].shift();
+                }
+                
+                // Calculate average
+                const avg = Math.round(clientHistory[clientId].reduce((a, b) => a + b, 0) / clientHistory[clientId].length);
+                clientCard.querySelector('.history-average').textContent = `Avg: ${avg}`;
+                
+                // Update history graph
+                const historyBars = clientCard.querySelectorAll('.history-bar');
+                const maxValue = Math.max(...clientHistory[clientId], 1); // Avoid division by zero
+                
+                clientHistory[clientId].forEach((count, index) => {
+                    if (historyBars[index]) {
+                        const height = Math.min(100, (count / maxValue) * 100);
+                        historyBars[index].style.height = `${height}%`;
+                        historyBars[index].dataset.count = count;
+                    }
+                });
+                
+                // Update timestamp
                 const lastUpdatedElement = clientCard.querySelector('.last-updated');
                 if (lastUpdatedElement) {
-                    lastUpdatedElement.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+                    const now = new Date();
+                    lastUpdatedElement.textContent = `Updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
                 }
             }
         }
@@ -143,7 +230,19 @@ async function fetchLogCount(clientId) {
         console.error(`Error fetching log count for client ${clientId}:`, error);
         const clientCard = document.querySelector(`.client-card[data-client-id="${clientId}"]`);
         if (clientCard) {
+            const statusIndicator = clientCard.querySelector('.status-indicator');
+            const statusText = clientCard.querySelector('.status-text');
             const logCountElement = clientCard.querySelector('.log-count');
+            
+            if (statusIndicator) {
+                statusIndicator.classList.remove('status-active');
+                statusIndicator.classList.add('status-inactive');
+            }
+            
+            if (statusText) {
+                statusText.textContent = 'Connection Error';
+            }
+            
             if (logCountElement) {
                 logCountElement.textContent = 'Error';
             }
@@ -168,8 +267,8 @@ async function loadClientsTable() {
     if (!tableBody) return;
     tableBody.innerHTML = '<tr><td colspan="4">Loading clients...</td></tr>';
     try {
-        const response = await fetch('/api/clients', { credentials: 'include' });       
-        if (!response.ok) throw new Error('Failed to load clients');      
+        const response = await fetch('/api/clients', { credentials: 'include' });
+        if (!response.ok) throw new Error('Failed to load clients');
         const clients = await response.json();
         if (clients.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="4">No clients found. Click "Add New Client" to add clients.</td></tr>';
@@ -191,7 +290,7 @@ async function loadClientsTable() {
             tableBody.appendChild(row);
             const viewBtn = row.querySelector('.view-btn');
             const editBtn = row.querySelector('.edit-btn');
-            const deleteBtn = row.querySelector('.delete-btn');      
+            const deleteBtn = row.querySelector('.delete-btn');
             viewBtn.addEventListener('click', () => window.open(client.url, '_blank'));
             editBtn.addEventListener('click', () => showEditClientModal(client));
             deleteBtn.addEventListener('click', () => deleteClient(client.id));
@@ -203,18 +302,18 @@ async function loadClientsTable() {
 }
 function showAddClientModal() {
     const modal = document.getElementById('addClientModal');
-    const form = document.getElementById('addClientForm');  
+    const form = document.getElementById('addClientForm');
     // Reset form
-    form.reset();   
+    form.reset();
     // Show modal
     modal.classList.remove('hidden');
 }
 function showEditClientModal(client) {
-    const modal = document.getElementById('editClientModal');   
+    const modal = document.getElementById('editClientModal');
     document.getElementById('editClientId').value = client.id;
     document.getElementById('editClientName').value = client.name;
     document.getElementById('editClientUrl').value = client.url;
-    document.getElementById('editClientDescription').value = client.description || '';  
+    document.getElementById('editClientDescription').value = client.description || '';
     // Show the modal
     modal.classList.remove('hidden');
 }
@@ -223,25 +322,38 @@ async function addClientSubmitHandler(e) {
     const name = document.getElementById('clientName').value.trim();
     const url = document.getElementById('clientUrl').value.trim();
     const description = document.getElementById('clientDescription').value.trim();
-    
+
+    // Get graylog config
+    const graylogHost = document.getElementById('graylogHost').value.trim();
+    const graylogUsername = document.getElementById('graylogUsername').value.trim();
+    const graylogPassword = document.getElementById('graylogPassword').value.trim();
+    const graylogStreamId = document.getElementById('graylogStreamId').value.trim();
+
+    const graylog = graylogHost ? {
+        host: graylogHost,
+        username: graylogUsername,
+        password: graylogPassword,
+        streamId: graylogStreamId
+    } : null;
+
     if (!name || !url) {
         showMessage('Name and URL are required', 'error');
         return;
-    }   
+    }
+
     try {
         const response = await fetch('/api/admin/clients', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ name, url, description })
-        });       
+            body: JSON.stringify({ name, url, description, graylog })
+        });
+
         const data = await response.json();
         if (data.success) {
             showMessage('Client added successfully', 'success');
-            document.getElementById('addClientModal').classList.add('hidden');          
-            // Refresh both views
-            await loadClients();        
-            // Also refresh the table if in management view
+            document.getElementById('addClientModal').classList.add('hidden');
+            await loadClients();
             if (document.getElementById('managementView').classList.contains('hidden') === false) {
                 await loadClientsTable();
             }
@@ -269,13 +381,13 @@ async function editClientSubmitHandler(e) {
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ name, url, description })
-        });       
+        });
         const data = await response.json();
         if (data.success) {
             showMessage('Client updated successfully', 'success');
-            document.getElementById('editClientModal').classList.add('hidden');         
+            document.getElementById('editClientModal').classList.add('hidden');
             // Refresh both views
-            await loadClients();           
+            await loadClients();
             // Also refresh the table if in management view
             if (document.getElementById('managementView').classList.contains('hidden') === false) {
                 await loadClientsTable();
@@ -299,9 +411,9 @@ async function deleteClient(clientId) {
         });
         const data = await response.json();
         if (data.success) {
-            showMessage('Client deleted successfully', 'success');            
+            showMessage('Client deleted successfully', 'success');
             // Refresh both views
-            await loadClients();            
+            await loadClients();
             // Also refresh the table if in management view
             if (document.getElementById('managementView').classList.contains('hidden') === false) {
                 await loadClientsTable();
