@@ -23,20 +23,24 @@ const writeClientsToFile = (clients) => {
 // Add a new client
 router.post('/clients', (req, res) => {
   try {
-    const { name, url, description } = req.body;
-    
-    // Basic validation
+    const { name, url, description, graylog } = req.body; // Add graylog to destructuring
     if (!name || !url) {
       return res.status(400).json({ success: false, message: 'Name and URL are required' });
-    }   
-    const clients = getClients();    
-    // Generate a new ID
-    const newId = clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1;    
-    // Create new client
-    const newClient = { id: newId, name, url, description: description || '' };   
-    // Add to array and write to file
+    }
+    
+    const clients = getClients();
+    const newId = clients.length > 0 ? Math.max(...clients.map(c => c.id)) + 1 : 1;
+    
+    const newClient = { 
+      id: newId, 
+      name, 
+      url, 
+      description: description || '',
+      graylog: graylog || null // Add graylog config
+    };
+    
     clients.push(newClient);
-    writeClientsToFile(clients);   
+    writeClientsToFile(clients);
     res.status(201).json({ success: true, client: newClient });
   } catch (error) {
     console.error('Error adding client:', error);
