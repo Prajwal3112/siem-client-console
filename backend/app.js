@@ -21,12 +21,8 @@ const axios = require('axios');
 app.use(express.json());
 
 // API Route: Fetch log count from Graylog
-app.get('/api/log-count', async (req, res) => {
+app.get('/api/log-counts', async (req, res) => {
     try {
-        // Graylog server configuration
-        const graylogUrl = "http://192.168.1.68:9000/api/search/universal/absolute";
-
-        // Generate timestamps for the last 10 seconds
         const now = new Date();
         const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000); // 5 hours ago
         const tenSecondsAgo = new Date(fiveHoursAgo.getTime() + 10 * 1000); // 10 seconds after 5 hours ago
@@ -34,39 +30,39 @@ app.get('/api/log-count', async (req, res) => {
         const from = fiveHoursAgo.toISOString(); // From 5 hours ago
         const to = now.toISOString(); // To current time
 
-        // Query parameters
-        const queryParams = {
-            query: "*",
-            from: from,
-            to: to,
-            limit: 0, // Only fetch the total count
-            filter: "streams:67c7e72cb78cd271d6481222"
-        };
+        const logCounts = await Promise.all(
+            clients.map(async (client) => {
+                const { graylogConfig } = client;
 
-        console.log("Fetching logs with parameters:", queryParams);
+                if (!graylogConfig) {
+                    return { clientId: client.id, totalLogCount: 0, error: "Graylog configuration missing" };
+                }
 
-        // Make the request to Graylog
-        const response = await axios.get(graylogUrl, {
-            auth: { username: "admin", password: "Virtual%09" }, // Update with correct credentials
-            params: queryParams,
-            headers: { Accept: "application/json" }
-        });
+                try {
+                    const response = await axios.get(graylogConfig.url, {
+                        auth: { username: graylogConfig.username, password: graylogConfig.password },
+                        params: {
+                            query: graylogConfig.query,
+                            from: from,
+                            to: to,
+                            limit: 0, // Only fetch the total count
+                            filter: `streams:${graylogConfig.streamId}`
+                        },
+                        headers: { Accept: "application/json" }
+                    });
 
-        // Extract total log count
-        const totalLogCount = response.data.total_results || 0;
-        res.json({ totalLogCount }); // Return total log count as JSON
+                    return { clientId: client.id, totalLogCount: response.data.total_results || 0 };
+                } catch (error) {
+                    console.error(`Error fetching logs for client ${client.name}:`, error.message);
+                    return { clientId: client.id, totalLogCount: 0, error: error.message };
+                }
+            })
+        );
+
+        res.json(logCounts);
     } catch (error) {
-        console.error("Error fetching logs:", error.message);
-
-        if (error.response) {
-            console.error("Response Status:", error.response.status);
-            console.error("Response Headers:", error.response.headers);
-            console.error("Response Data:", error.response.data);
-        } else {
-            console.error("No response received from Graylog.");
-        }
-
-        res.status(500).json({ error: "Failed to fetch logs" }); // Ensure error response is JSON
+        console.error("Error fetching log counts:", error.message);
+        res.status(500).json({ error: "Failed to fetch log counts" });
     }
 });
 
@@ -76,11 +72,10 @@ app.use(express.static('frontend'));
 
 /////////////////////////////////////
 // Security middleware
+app.use(express.json());
 app.use(helmet());
-app.use(cors({
-  origin: 'http://localhost:7000', // Restrict to your domain
-  credentials: true // Allow cookies to be sent
-}));
+app.use(cors({ origin: 'http://localhost:7000', credentials: true }));
+app.use(cookieParser(process.env.SESSION_SECRET));
 
 // Parse JSON bodies and cookies
 app.use(express.json());
