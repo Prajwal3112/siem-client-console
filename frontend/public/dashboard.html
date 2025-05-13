@@ -7,8 +7,8 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <link rel="stylesheet" href="../styles/main.css">
 </head>
-<body class="desktop-bg">
-    <div class="desktop-container">
+<body class="dashboard-bg">
+    <div class="dashboard-container">
         <header class="taskbar">
             <div class="taskbar-left">
                 <h1>SIEM Client Console</h1>
@@ -30,8 +30,10 @@
         
         <!-- Main Content Area -->
         <div id="mainContent">
-            <!-- Desktop View (Default) -->
-            <div id="desktopView" class="desktop-icons"></div>
+            <!-- Dashboard View (Default) -->
+            <div id="dashboardView" class="dashboard-grid">
+                <!-- Client cards will be loaded here dynamically -->
+            </div>
             
             <!-- Management View (Hidden by default) -->
             <div id="managementView" class="management-panel hidden">

@@ -28,7 +28,7 @@ function initializeUI() {
 }
 
 function toggleManagementView() {
-    const desktopView = document.getElementById('desktopView');
+    const desktopView = document.getElementById('dashboardView');
     const managementView = document.getElementById('managementView');
     
     if (desktopView.classList.contains('hidden')) {
@@ -80,10 +80,10 @@ function setupFormHandlers() {
 }
 
 async function loadClients() {
-    const clientsGrid = document.getElementById('desktopView');
-    if (!clientsGrid) return;
+    const dashboardGrid = document.getElementById('dashboardView');
+    if (!dashboardGrid) return;
 
-    clientsGrid.innerHTML = '<div class="loading">Loading clients...</div>';
+    dashboardGrid.innerHTML = '<div class="loading">Loading clients...</div>';
 
     try {
         const response = await fetch('/api/clients', { credentials: 'include' });
@@ -93,26 +93,45 @@ async function loadClients() {
         const clients = await response.json();
 
         if (clients.length === 0) {
-            clientsGrid.innerHTML = '<div class="no-clients">No clients found. Click "Manage Clients" to add clients.</div>';
+            dashboardGrid.innerHTML = '<div class="no-clients">No clients found. Click "Manage Clients" to add clients.</div>';
             return;
         }
 
-        clientsGrid.innerHTML = '';
+        dashboardGrid.innerHTML = '';
         clients.forEach(client => {
-            const clientIcon = document.createElement('div');
-            clientIcon.className = 'desktop-icon';
-            clientIcon.innerHTML = `
-                <img src="client-icon.png" alt="${escapeHtml(client.name)}">
-                <span>${escapeHtml(client.name)}</span>
+            const clientCard = document.createElement('div');
+            clientCard.className = 'client-card';
+            clientCard.innerHTML = `
+                <div class="client-card-header">
+                    <div class="client-icon">
+                        ${client.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <div class="client-name">${escapeHtml(client.name)}</div>
+                        <div class="client-url">${escapeHtml(client.url)}</div>
+                    </div>
+                </div>
+                <div class="client-description">
+                    ${escapeHtml(client.description || 'No description available')}
+                </div>
+                <div class="client-status">
+                    <span>
+                        <span class="status-indicator status-active"></span>
+                        Online
+                    </span>
+                    <span>Last active: Just now</span>
+                </div>
             `;
-            clientIcon.addEventListener('click', () => openClientDashboard(client));
-            clientsGrid.appendChild(clientIcon);
+            clientCard.addEventListener('click', () => openClientDashboard(client));
+            dashboardGrid.appendChild(clientCard);
         });
     } catch (error) {
         console.error('Error loading clients:', error);
-        clientsGrid.innerHTML = '<div class="error">Error loading clients. Click Refresh to try again.</div>';
+        dashboardGrid.innerHTML = '<div class="error">Error loading clients. Click Refresh to try again.</div>';
     }
 }
+
+// Keep all other existing functions unchanged
 
 function openClientDashboard(client) {
     // Directly open the client's dashboard in a new tab
