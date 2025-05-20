@@ -759,15 +759,7 @@ button:hover {
     font-size: 0.8rem;
     opacity: 0.7;
 }
-/* .log-graph {
-  height: 30px;
-  width: 100%;
-  background: rgba(255,255,255,0.1);
-  margin-top: 10px;
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-} */
+
 
 .graph-bar {
     height: 100%;
@@ -796,32 +788,6 @@ button:hover {
     width: 100%;
 }
 
-/* .log-graph {
-    height: 30px;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 5px;
-} */
-
-/* .graph-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #3498db, #2ecc71);
-    width: 0%;
-    transition: width 0.5s ease;
-} */
-
-/* .timer-line {
-    position: absolute;
-    height: 100%;
-    width: 2px;
-    background: rgba(255, 255, 255, 0.8);
-    left: 0;
-    animation: timerAnimation 10s linear infinite;
-} */
-
 .graph-labels {
     display: flex;
     justify-content: space-between;
@@ -830,50 +796,118 @@ button:hover {
     padding: 0 5px;
 }
 
-@keyframes timerAnimation {
-    0% { left: 0; }
-    100% { left: 100%; }
-}
-
-/* For the historical log graph */
-.history-graph {
-    height: 80px;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-    padding: 10px;
-    margin-top: 15px;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.history-bars {
-    display: flex;
-    height: 100%;
-    align-items: flex-end;
-    gap: 5px;
-}
-
-.history-bar {
-    flex: 1;
-    background: linear-gradient(to top, #3498db, #2ecc71);
-    min-width: 5px;
-    border-radius: 3px 3px 0 0;
-    transition: height 0.5s ease;
-    position: relative;
-}
-
-.history-bar::after {
-    content: attr(data-count);
-    position: absolute;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.7rem;
-    color: white;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
 .history-bar:hover::after {
     opacity: 1;
+}
+
+/* Detailed Stats Styling */
+.detailed-stats {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.stats-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.stats-item {
+    text-align: center;
+    flex: 1;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin: 0 5px;
+}
+
+.stats-item:first-child {
+    margin-left: 0;
+}
+
+.stats-item:last-child {
+    margin-right: 0;
+}
+
+.stats-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.stats-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.rule-levels, .daily-logs {
+    margin-top: 15px;
+}
+
+.rule-levels h4, .daily-logs h4 {
+    font-size: 0.9rem;
+    margin: 0 0 8px 0;
+    color: white;
+    opacity: 0.9;
+}
+
+.rule-level {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.rule-level-label {
+    width: 80px;
+    font-size: 0.85rem;
+}
+
+.rule-level-bar-container {
+    flex-grow: 1;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    margin: 0 10px;
+    overflow: hidden;
+}
+
+.rule-level-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 5px;
+}
+
+.rule-level-count {
+    width: 100px;
+    font-size: 0.85rem;
+    text-align: right;
+}
+
+.daily-logs-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.daily-log-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.daily-log-item:last-child {
+    border-bottom: none;
+}
+
+.stats-error {
+    color: #e74c3c;
+    text-align: center;
+    padding: 10px;
 }

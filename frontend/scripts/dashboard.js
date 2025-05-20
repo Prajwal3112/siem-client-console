@@ -1,4 +1,7 @@
 const clientHistory = {};
+const clientStats = {};
+const clientTokens = {};
+const clientTokenExpiry = {};
 document.addEventListener('DOMContentLoaded', async () => {
     // Check authentication
     const authenticated = await window.__auth.checkAuth();
@@ -61,6 +64,134 @@ function setupFormHandlers() {
     if (editClientForm) {
         editClientForm.addEventListener('submit', editClientSubmitHandler);
     }
+}
+
+async function fetchClientDetailedStats(clientId) {
+    try {
+        const response = await fetch(`/api/clients/${clientId}/detailed-stats`, { 
+            credentials: 'include' 
+        });
+        
+        if (!response.ok) throw new Error(`Failed to load detailed stats for client ${clientId}`);
+        
+        const data = await response.json();
+        if (data.success && data.stats) {
+            const clientCard = document.querySelector(`.client-card[data-client-id="${clientId}"]`);
+            if (clientCard) {
+                // Store the stats data
+                clientStats[clientId] = data.stats;
+                
+                // Update the detailed stats display
+                updateDetailedStatsDisplay(clientId, clientCard, data.stats);
+            }
+        }
+    } catch (error) {
+        console.error(`Error fetching detailed stats for client ${clientId}:`, error);
+        const clientCard = document.querySelector(`.client-card[data-client-id="${clientId}"]`);
+        if (clientCard) {
+            const detailedStatsElement = clientCard.querySelector('.detailed-stats');
+            if (detailedStatsElement) {
+                detailedStatsElement.innerHTML = '<div class="stats-error">Error loading detailed stats</div>';
+            }
+        }
+    }
+}
+
+// Function to update the detailed stats display
+function updateDetailedStatsDisplay(clientId, clientCard, stats) {
+    let detailedStatsElement = clientCard.querySelector('.detailed-stats');
+    
+    if (!detailedStatsElement) {
+        detailedStatsElement = document.createElement('div');
+        detailedStatsElement.className = 'detailed-stats';
+        
+        // Insert detailed stats section after the history graph
+        const historyGraph = clientCard.querySelector('.history-graph');
+        if (historyGraph) {
+            historyGraph.insertAdjacentElement('afterend', detailedStatsElement);
+        } else {
+            clientCard.appendChild(detailedStatsElement);
+        }
+    }
+    
+    // Calculate severity percentages
+    const totalLogs = stats.total || 0;
+    const majorLogs = stats.major || 0;
+    const normalLogs = stats.normal || 0;
+    
+    const majorPercentage = totalLogs > 0 ? ((majorLogs / totalLogs) * 100).toFixed(1) : 0;
+    const normalPercentage = totalLogs > 0 ? ((normalLogs / totalLogs) * 100).toFixed(1) : 0;
+    
+    // Format rule levels for display (top 3 by count)
+    let ruleLevelsHtml = '';
+    if (stats.ruleLevels && stats.ruleLevels.length > 0) {
+        // Sort rule levels by count (descending)
+        const sortedLevels = [...stats.ruleLevels].sort((a, b) => b.count - a.count).slice(0, 3);
+        
+        ruleLevelsHtml = `
+            <div class="rule-levels">
+                <h4>Top Rule Levels</h4>
+                <div class="rule-levels-chart">
+                    ${sortedLevels.map(level => {
+                        const levelPercentage = totalLogs > 0 ? ((level.count / totalLogs) * 100).toFixed(1) : 0;
+                        return `
+                            <div class="rule-level">
+                                <div class="rule-level-label">Level ${level.level}</div>
+                                <div class="rule-level-bar-container">
+                                    <div class="rule-level-bar" style="width: ${levelPercentage}%"></div>
+                                </div>
+                                <div class="rule-level-count">${level.count} (${levelPercentage}%)</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Generate daily logs display
+    let dailyLogsHtml = '';
+    if (stats.dailyLogs && stats.dailyLogs.length > 0) {
+        dailyLogsHtml = `
+            <div class="daily-logs">
+                <h4>Daily Logs</h4>
+                <div class="daily-logs-list">
+                    ${stats.dailyLogs.map(day => {
+                        const date = new Date(day.date);
+                        return `
+                            <div class="daily-log-item">
+                                <div class="daily-log-date">${date.toLocaleDateString()}</div>
+                                <div class="daily-log-count">${day.count} logs</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Update the detailed stats content
+    detailedStatsElement.innerHTML = `
+        <div class="stats-header">
+            <h3>Detailed Stats (24h)</h3>
+        </div>
+        <div class="stats-summary">
+            <div class="stats-item">
+                <div class="stats-label">Total Logs</div>
+                <div class="stats-value">${totalLogs}</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-label">Major</div>
+                <div class="stats-value">${majorLogs} (${majorPercentage}%)</div>
+            </div>
+            <div class="stats-item">
+                <div class="stats-label">Normal</div>
+                <div class="stats-value">${normalLogs} (${normalPercentage}%)</div>
+            </div>
+        </div>
+        ${ruleLevelsHtml}
+        ${dailyLogsHtml}
+    `;
 }
 async function loadClients() {
     const dashboardGrid = document.getElementById('dashboardView');
@@ -159,6 +290,9 @@ async function loadClients() {
             dashboardGrid.appendChild(clientCard);
             // Fetch log count for this client
             fetchLogCount(client.id);
+            if (client.name === "Virtual Galaxy") {
+                fetchClientDetailedStats(client.id);
+            }
         }
         setInterval(refreshAllLogCounts, 10000);
     } catch (error) {
@@ -255,6 +389,12 @@ function refreshAllLogCounts() {
         const clientId = card.dataset.clientId;
         if (clientId) {
             fetchLogCount(parseInt(clientId));
+            
+            // Also refresh detailed stats for Virtual Galaxy
+            const clientName = card.querySelector('.client-name')?.textContent;
+            if (clientName === "Virtual Galaxy") {
+                fetchClientDetailedStats(parseInt(clientId));
+            }
         }
     });
 }
