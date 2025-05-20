@@ -1,3 +1,4 @@
+// backend/config/clients.js
 module.exports = [
     {
         "id": 1,

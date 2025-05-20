@@ -1,9 +1,11 @@
+// backend/routes/clients.js
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const axios = require('axios');
 
 // Get clients from file
 const getClients = () => {
@@ -119,6 +121,66 @@ router.get('/:id/logs', async (req, res) => {
   } catch (error) {
     console.error('Error fetching Graylog data:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch log data' });
+  }
+});
+
+router.get('/:id/detailed-stats', async (req, res) => {
+  try {
+    const clients = getClients();
+    const client = clients.find(c => c.id === parseInt(req.params.id));
+    
+    if (!client) {
+      return res.status(404).json({ success: false, message: 'Client not found' });
+    }
+    
+    // For Virtual Galaxy client
+    if (client.name === "Virtual Galaxy") {
+      try {
+        // Get authentication token
+        const authResponse = await axios.post('http://192.168.1.67:5000/api/auth/login', {
+          username: "admin",
+          password: "Virtual"
+        });
+        
+        const token = authResponse.data.token;
+        
+        // Get detailed stats using the token
+        const statsResponse = await axios.get(
+          'http://192.168.1.67:5000/api/logs/stats/overview?timeRange=24h', 
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        res.json({
+          success: true,
+          clientId: client.id,
+          clientName: client.name,
+          stats: statsResponse.data
+        });
+      } catch (error) {
+        console.error('Error fetching stats from client API:', error);
+        res.status(500).json({ 
+          success: false, 
+          message: 'Failed to fetch detailed stats from client',
+          error: error.message
+        });
+      }
+    } else {
+      // For other clients that don't have the detailed stats API yet
+      res.json({
+        success: false,
+        message: 'Detailed stats not available for this client',
+        clientId: client.id,
+        clientName: client.name
+      });
+    }
+  } catch (error) {
+    console.error('Error in detailed stats endpoint:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch detailed stats' });
   }
 });
 
