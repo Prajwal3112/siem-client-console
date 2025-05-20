@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     // Initialize UI elements
     initializeUI();
+    createFooter();
     // Set up modal close handlers
     setupModalCloseHandlers();
     // Set up form submission handlers
@@ -24,6 +25,11 @@ function initializeUI() {
     document.getElementById('refreshBtn').addEventListener('click', () => window.location.reload());
     document.getElementById('manageClientsBtn').addEventListener('click', toggleManagementView);
     document.getElementById('addClientBtn').addEventListener('click', showAddClientModal);
+}
+function createFooter() {
+    const footer = document.createElement('footer');
+    footer.className = 'footer';
+    document.body.appendChild(footer);
 }
 
 function toggleManagementView() {

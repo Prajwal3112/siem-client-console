@@ -911,3 +911,104 @@ button:hover {
     text-align: center;
     padding: 10px;
 }
+
+.footer {
+    height: 40px;
+    background: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 15px 30px;
+    text-align: center;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 90;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.copyright {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    margin-right: 15px;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--secondary-color);
+}
+
+.company-logo-placeholder {
+    width: 100px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+}
+
+/* News Ticker Styles */
+.news-ticker-container {
+    position: fixed;
+    bottom: 40px; /* Adjust based on footer height */
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 0;
+    z-index: 30;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.news-ticker {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.ticker-content {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ticker 60s linear infinite;
+}
+
+.ticker-item {
+    display: inline-block;
+    margin-right: 30px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.ticker-item:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #3498db;
+}
+
+@keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
