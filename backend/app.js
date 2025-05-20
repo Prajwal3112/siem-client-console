@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const clientsRoutes = require('./routes/clients');
 const adminRoutes = require('./routes/admin');
 const { authMiddleware } = require('./middleware/auth');
+const newsRoutes = require('./routes/news');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 7000;
@@ -28,6 +29,7 @@ app.use('/api/admin', authMiddleware, adminRoutes); // Protected route for clien
 app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.use('/scripts', express.static(path.join(__dirname, '../frontend/scripts')));
 app.use('/styles', express.static(path.join(__dirname, '../frontend/styles')));
+app.use('/api/news', newsRoutes);
 // Route all other requests to index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
