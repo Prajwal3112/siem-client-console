@@ -95,4 +95,5 @@ router.delete('/clients/:id', (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to delete client' });
   }
 });
+
 module.exports = router;

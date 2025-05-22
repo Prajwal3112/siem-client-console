@@ -11,11 +11,18 @@ const { authMiddleware } = require('./middleware/auth');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 7000;
+const clients = require('./config/clients');
+/////////////////////////////
+// Add near other route imports
+const newsRoutes = require('./routes/news');
+app.use('/api/news', newsRoutes);
+////////////////////////////
 // Security middleware
 app.use(helmet());
+// To this:
 app.use(cors({
-  origin: 'http://localhost:7000', // Restrict to your domain
-  credentials: true // Allow cookies to be sent
+  origin: true, // Or specify your frontend URL
+  credentials: true
 }));
 // Parse JSON bodies and cookies
 app.use(express.json());

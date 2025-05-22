@@ -122,4 +122,51 @@ router.get('/:id/logs', async (req, res) => {
   }
 });
 
+///////////////
+// Add this new route after the existing routes
+router.get('/:id/logstats', async (req, res) => {
+    try {
+        const clients = getClients();
+        const client = clients.find(c => c.id === parseInt(req.params.id));
+        
+        if (!client || !client.logApi) {
+            return res.status(404).json({ success: false, message: 'Client or Log API config not found' });
+        }
+
+        // First, get the token
+        const tokenResponse = await fetch(`http://${client.logApi.host}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: client.logApi.username,
+                password: client.logApi.password
+            })
+        });
+
+        const tokenData = await tokenResponse.json();
+        if (!tokenData.token) {
+            throw new Error('Failed to get authentication token');
+        }
+
+        // Then get the log stats
+        const statsResponse = await fetch(`http://${client.logApi.host}/api/logs/stats/overview?timeRange=24h`, {
+            headers: {
+                'Authorization': `Bearer ${tokenData.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const statsData = await statsResponse.json();
+        res.json({
+            success: true,
+            stats: statsData
+        });
+        
+    } catch (error) {
+        console.error('Error fetching log stats:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch log statistics' });
+    }
+});
+/////////////////
+
 module.exports = router;

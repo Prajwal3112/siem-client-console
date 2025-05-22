@@ -8,13 +8,15 @@
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
     <link rel="stylesheet" href="../styles/main.css">
+    <link rel="icon" href="cybersentinel_fevicon.png" type="image/x-icon">
 </head>
 
 <body class="dashboard-bg">
     <div class="dashboard-container">
         <header class="taskbar">
             <div class="taskbar-left">
-                <h1>SIEM Client Console</h1>
+                <img src="../cybersentinel_fevicon.png" alt="CyberSentinel Logo" class="logo" />
+                <h1>MSSP Client Console</h1>
             </div>
             <div class="taskbar-right">
                 <button id="refreshBtn" class="taskbar-btn" title="Refresh">
@@ -28,6 +30,33 @@
                 </button>
             </div>
         </header>
+
+        <!-- Leaderboard section -->
+
+        <div class="leaderboard-dropdown">
+            <!-- Add this search bar above the toggle button -->
+            <div class="leaderboard-search">
+                <input type="text" id="clientSearch" placeholder="Search by client name...">
+                <button id="searchClientBtn">🔍</button>
+            </div>
+
+            <button class="leaderboard-toggle">
+                <span class="icon">📊</span> Top Servers
+                <span class="arrow">▼</span>
+            </button>
+
+            <!-- Add this popup container -->
+            <div id="clientSearchPopup" class="search-popup hidden">
+                <div class="popup-content">
+                    <span class="close-popup">&times;</span>
+                    <div id="searchResults"></div>
+                </div>
+            </div>
+
+            <div class="leaderboard-container hidden">
+                <div class="leaderboard-list" id="leaderboardList"></div>
+            </div>
+        </div>
 
         <div id="message" class="message hidden"></div>
 
@@ -57,7 +86,9 @@
                         <tbody id="clientsTableBody">
                             <!-- Clients will be loaded here dynamically -->
                         </tbody>
+            
                     </table>
+                    
                 </div>
             </div>
         </div>
@@ -139,9 +170,27 @@
             </div>
         </div>
     </div>
-
+        
+        <footer class="dashboard-footer">
+        <div class="news-ticker-container">
+            <div id="newsTicker" class="news-ticker">
+            <div class="ticker-content"></div>
+            </div>
+            <div class="ticker-controls">
+            <button id="pauseTickerBtn" title="Pause">⏸</button>
+            <button id="refreshNewsBtn" title="Refresh">⟳</button>
+            </div>
+        </div>
+        <div class="footer-info">
+            <span>SIEM Console v1.0</span>
+            <b><span id="currentTime"></span></b>
+            <span id="newsSource"></span>
+        </div>
+        </footer>
+    </div>
     <script src="../scripts/auth.js"></script>
     <script src="../scripts/dashboard.js"></script>
-</body>
+  </body>
+
 
 </html>
