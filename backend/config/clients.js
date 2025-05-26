@@ -10,7 +10,7 @@ module.exports = [
             "password": "Virtual%09",
             "streamId": "67c7e72cb78cd271d6481222"
         },
-         "logApi": {
+        "logApi": {
             "host": "192.168.1.67:5000",
             "username": "admin",
             "password": "Virtual"
@@ -40,7 +40,7 @@ module.exports = [
             "streamId": "67c7e72cb78cd271d6481222"
         }
     },
-     {
+    {
         "id": 4,
         "name": "vagaro.ltd",
         "url": "http://115.245.81.14:3000",
@@ -50,6 +50,40 @@ module.exports = [
             "username": "admin",
             "password": "Virtual%09",
             "streamId": "67c7e72cb78cd271d6481222"
+        }
+    },
+    {
+        "id": 5,
+        "name": "mr",
+        "url": "http://115.245.81.14:3000",
+        "description": "private ip",
+        "graylog": {
+            "host": "192.168.1.68:9000",
+            "username": "admin",
+            "password": "Virtual%09",
+            "streamId": "67c7e72cb78cd271d6481222"
+        },
+        "logApi": {
+            "host": "192.168.1.67:5000",
+            "username": "admin",
+            "password": "Virtual"
+        }
+    },
+    {
+        "id": 6,
+        "name": "rakshit",
+        "url": "http://115.245.81.14:3000",
+        "description": "private ip",
+        "graylog": {
+            "host": "192.168.1.68:9000",
+            "username": "admin",
+            "password": "Virtual%09",
+            "streamId": "67c7e72cb78cd271d6481222"
+        },
+        "logApi": {
+            "host": "192.168.1.67:5000",
+            "username": "admin",
+            "password": "Virtual"
         }
     }
 ];

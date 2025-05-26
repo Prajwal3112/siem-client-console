@@ -33,30 +33,40 @@
 
         <!-- Leaderboard section -->
 
-        <div class="leaderboard-dropdown">
-            <!-- Add this search bar above the toggle button -->
-            <div class="leaderboard-search">
-                <input type="text" id="clientSearch" placeholder="Search by client name...">
-                <button id="searchClientBtn">🔍</button>
-            </div>
-
-            <button class="leaderboard-toggle">
-                <span class="icon">📊</span> Top Servers
-                <span class="arrow">▼</span>
-            </button>
-
-            <!-- Add this popup container -->
-            <div id="clientSearchPopup" class="search-popup hidden">
-                <div class="popup-content">
-                    <span class="close-popup">&times;</span>
-                    <div id="searchResults"></div>
-                </div>
-            </div>
-
-            <div class="leaderboard-container hidden">
-                <div class="leaderboard-list" id="leaderboardList"></div>
-            </div>
+<div class="dashboard-header">
+    <!-- Left-aligned welcome section -->
+    <div class="welcome-section">
+        <h2>Welcome Back ! SOC</h2>
+    </div>
+    
+    <!-- Right-aligned controls container -->
+    <div class="header-controls">
+        <!-- Search box -->
+        <div class="leaderboard-search">
+            <input type="text" id="clientSearch" placeholder="Search clients...">
+            <button id="searchClientBtn">🔍</button>
         </div>
+        
+        <!-- Leaderboard toggle -->
+         <button class="leaderboard-toggle" id="leaderboardToggleBtn">
+            <span class="icon">📊</span> Top Servers
+            <span class="arrow">▼</span>
+        </button>
+        
+        <!-- Leaderboard dropdown -->
+       <div class="leaderboard-dropdown hidden" id="leaderboardDropdown">
+            <div class="leaderboard-list" id="leaderboardList"></div>
+        </div>
+    </div>
+    
+    <!-- Search popup (positioned absolutely) -->
+    <div id="clientSearchPopup" class="search-popup hidden">
+        <div class="popup-content">
+            <span class="close-popup">&times;</span>
+            <div id="searchResults"></div>
+        </div>
+    </div>
+</div>
 
         <div id="message" class="message hidden"></div>
 
@@ -134,6 +144,13 @@
                         <input type="password" id="editGraylogPassword" placeholder="Password">
                         <input type="text" id="editGraylogStreamId" placeholder="Stream ID">
                     </div>
+                    <!-- Add opensearch configuration fields -->
+                    <div class="form-group">
+                    <label>Log API Configuration</label>
+                    <input type="text" id="editLogApiHost" placeholder="Host:Port">
+                    <input type="text" id="editLogApiUsername" placeholder="Username">
+                    <input type="password" id="editLogApiPassword" placeholder="Password">
+                </div>
                     <button type="submit" class="submit-btn">Update Client</button>
                 </form>
             </div>
@@ -164,6 +181,13 @@
                         <input type="text" id="graylogUsername" placeholder="Username">
                         <input type="password" id="graylogPassword" placeholder="Password">
                         <input type="text" id="graylogStreamId" placeholder="Stream ID">
+                    </div>
+                      <!-- Add opensearch configuration fields -->
+                    <div class="form-group">
+                        <label>Log API Configuration</label>
+                        <input type="text" id="logApiHost" placeholder="Host:Port">
+                        <input type="text" id="logApiUsername" placeholder="Username">
+                        <input type="password" id="logApiPassword" placeholder="Password">
                     </div>
                     <button type="submit" class="submit-btn">Add Client</button>
                 </form>

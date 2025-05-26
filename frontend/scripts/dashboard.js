@@ -20,14 +20,47 @@ document.addEventListener("DOMContentLoaded", async () => {
   //Leaderboard dashboard
   await updateLeaderboard();
 
-  const leaderboardToggle = document.querySelector(".leaderboard-toggle");
-  if (leaderboardToggle) {
-    leaderboardToggle.addEventListener("click", toggleLeaderboard);
-
-    //news ticker
+   //news ticker
  initializeNewsTicker();
   setupTickerControls();
-  }
+
+ 
+
+     // Initialize leaderboard toggle
+    const toggleBtn = document.getElementById('leaderboardToggleBtn');
+    const dropdown = document.getElementById('leaderboardDropdown');
+    const arrow = toggleBtn.querySelector('.arrow');
+    
+    if (toggleBtn && dropdown) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event from bubbling up
+            dropdown.classList.toggle('visible');
+            dropdown.classList.toggle('hidden');
+            
+            // Update arrow direction
+            arrow.textContent = dropdown.classList.contains('visible') ? '▲' : '▼';
+            
+            // Refresh leaderboard data when opened
+            if (dropdown.classList.contains('visible')) {
+                updateLeaderboard();
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            if (dropdown.classList.contains('visible')) {
+                dropdown.classList.remove('visible');
+                dropdown.classList.add('hidden');
+                arrow.textContent = '▼';
+            }
+        });
+        
+        // Prevent dropdown from closing when clicking inside it
+        dropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+
 });
 
 function initializeUI() {
@@ -56,8 +89,7 @@ function initializeUI() {
     });
   document
     .querySelector(".close-popup")
-    .addEventListener("click", closeSearchPopup);
-
+    .addEventListener("click", closeSearchPopup); 
   // Event delegation for dynamically created buttons
   document.addEventListener("click", function (e) {
     // Handle Open Dashboard buttons in search results
@@ -230,9 +262,7 @@ async function loadClients() {
                 <div class="client-status">
                     <span>Last active: Just now</span>
                     <span class="last-updated">Updating...</span>
-                </div>
-
-                    
+                </div>     
             `;
       ////////
 
@@ -410,6 +440,7 @@ function refreshAllLogCounts() {
   });
   updateLeaderboard();
 }
+
 function openClientDashboard(client) {
   // Directly open the client's dashboard in a new tab
   window.open(client.url, "_blank");
@@ -480,6 +511,7 @@ function showEditClientModal(client) {
   // Show the modal
   modal.classList.remove("hidden");
 }
+// Update addClientSubmitHandler
 async function addClientSubmitHandler(e) {
   e.preventDefault();
   const name = document.getElementById("clientName").value.trim();
@@ -488,24 +520,27 @@ async function addClientSubmitHandler(e) {
 
   // Get graylog config
   const graylogHost = document.getElementById("graylogHost").value.trim();
-  const graylogUsername = document
-    .getElementById("graylogUsername")
-    .value.trim();
-  const graylogPassword = document
-    .getElementById("graylogPassword")
-    .value.trim();
-  const graylogStreamId = document
-    .getElementById("graylogStreamId")
-    .value.trim();
+  const graylogUsername = document.getElementById("graylogUsername").value.trim();
+  const graylogPassword = document.getElementById("graylogPassword").value.trim();
+  const graylogStreamId = document.getElementById("graylogStreamId").value.trim();
 
-  const graylog = graylogHost
-    ? {
-        host: graylogHost,
-        username: graylogUsername,
-        password: graylogPassword,
-        streamId: graylogStreamId,
-      }
-    : null;
+  // Get logApi config
+  const logApiHost = document.getElementById("logApiHost").value.trim();
+  const logApiUsername = document.getElementById("logApiUsername").value.trim();
+  const logApiPassword = document.getElementById("logApiPassword").value.trim();
+
+  const graylog = graylogHost ? {
+    host: graylogHost,
+    username: graylogUsername,
+    password: graylogPassword,
+    streamId: graylogStreamId
+  } : null;
+
+  const logApi = logApiHost ? {
+    host: logApiHost,
+    username: logApiUsername,
+    password: logApiPassword
+  } : null;
 
   if (!name || !url) {
     showMessage("Name and URL are required", "error");
@@ -517,7 +552,7 @@ async function addClientSubmitHandler(e) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ name, url, description, graylog }),
+      body: JSON.stringify({ name, url, description, graylog, logApi }),
     });
 
     const data = await response.json();
@@ -525,11 +560,7 @@ async function addClientSubmitHandler(e) {
       showMessage("Client added successfully", "success");
       document.getElementById("addClientModal").classList.add("hidden");
       await loadClients();
-      if (
-        document
-          .getElementById("managementView")
-          .classList.contains("hidden") === false
-      ) {
+      if (!document.getElementById("managementView").classList.contains("hidden")) {
         await loadClientsTable();
       }
     } else {
@@ -540,37 +571,57 @@ async function addClientSubmitHandler(e) {
     showMessage("Error adding client", "error");
   }
 }
+// Update editClientSubmitHandler
 async function editClientSubmitHandler(e) {
   e.preventDefault();
   const id = document.getElementById("editClientId").value;
   const name = document.getElementById("editClientName").value.trim();
   const url = document.getElementById("editClientUrl").value.trim();
-  const description = document
-    .getElementById("editClientDescription")
-    .value.trim();
+  const description = document.getElementById("editClientDescription").value.trim();
+
+  // Get graylog config
+  const graylogHost = document.getElementById("editGraylogHost").value.trim();
+  const graylogUsername = document.getElementById("editGraylogUsername").value.trim();
+  const graylogPassword = document.getElementById("editGraylogPassword").value.trim();
+  const graylogStreamId = document.getElementById("editGraylogStreamId").value.trim();
+
+  // Get logApi config
+  const logApiHost = document.getElementById("editLogApiHost").value.trim();
+  const logApiUsername = document.getElementById("editLogApiUsername").value.trim();
+  const logApiPassword = document.getElementById("editLogApiPassword").value.trim();
+
+  const graylog = graylogHost ? {
+    host: graylogHost,
+    username: graylogUsername,
+    password: graylogPassword,
+    streamId: graylogStreamId
+  } : null;
+
+  const logApi = logApiHost ? {
+    host: logApiHost,
+    username: logApiUsername,
+    password: logApiPassword
+  } : null;
+
   if (!name || !url) {
     showMessage("Name and URL are required", "error");
     return;
   }
+
   try {
     const response = await fetch(`/api/admin/clients/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ name, url, description }),
+      body: JSON.stringify({ name, url, description, graylog, logApi }),
     });
+
     const data = await response.json();
     if (data.success) {
       showMessage("Client updated successfully", "success");
       document.getElementById("editClientModal").classList.add("hidden");
-      // Refresh both views
       await loadClients();
-      // Also refresh the table if in management view
-      if (
-        document
-          .getElementById("managementView")
-          .classList.contains("hidden") === false
-      ) {
+      if (!document.getElementById("managementView").classList.contains("hidden")) {
         await loadClientsTable();
       }
     } else {
@@ -581,36 +632,7 @@ async function editClientSubmitHandler(e) {
     showMessage("Error updating client", "error");
   }
 }
-async function deleteClient(clientId) {
-  if (!confirm("Are you sure you want to delete this client?")) {
-    return;
-  }
-  try {
-    const response = await fetch(`/api/admin/clients/${clientId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    const data = await response.json();
-    if (data.success) {
-      showMessage("Client deleted successfully", "success");
-      // Refresh both views
-      await loadClients();
-      // Also refresh the table if in management view
-      if (
-        document
-          .getElementById("managementView")
-          .classList.contains("hidden") === false
-      ) {
-        await loadClientsTable();
-      }
-    } else {
-      showMessage(data.message || "Failed to delete client", "error");
-    }
-  } catch (error) {
-    console.error("Error deleting client:", error);
-    showMessage("Error deleting client", "error");
-  }
-}
+
 function showMessage(message, type = "info") {
   const messageElement = document.getElementById("message");
   if (messageElement) {
@@ -668,21 +690,8 @@ function updateLeaderboard() {
   });
 }
 
-function toggleLeaderboard() {
-  const dropdown = document.querySelector(".leaderboard-dropdown");
-  const container = document.querySelector(".leaderboard-container");
-
-  if (dropdown && container) {
-    dropdown.classList.toggle("active");
-    container.classList.toggle("hidden");
-
-    // Update leaderboard when opening
-    if (!container.classList.contains("hidden")) {
-      updateLeaderboard();
-    }
-  }
-}
-
+///////////////////
+ 
 // Search function
 async function searchClient() {
   const searchTerm = document.getElementById("clientSearch").value.trim();

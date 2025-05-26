@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const clientsFilePath = path.join(__dirname, '../config/clients.js');
+
 // Helper function to read clients
 const getClients = () => {
   try {
@@ -15,15 +16,17 @@ const getClients = () => {
     return [];
   }
 };
+
 // Helper function to write clients to file
 const writeClientsToFile = (clients) => {
   const clientsContent = `module.exports = ${JSON.stringify(clients, null, 4)};`;
   fs.writeFileSync(clientsFilePath, clientsContent, 'utf8');
 };
+
 // Add a new client
 router.post('/clients', (req, res) => {
   try {
-    const { name, url, description, graylog } = req.body; // Add graylog to destructuring
+    const { name, url, description, graylog, logApi } = req.body; // Added logApi to destructuring
     if (!name || !url) {
       return res.status(400).json({ success: false, message: 'Name and URL are required' });
     }
@@ -36,7 +39,8 @@ router.post('/clients', (req, res) => {
       name, 
       url, 
       description: description || '',
-      graylog: graylog || null // Add graylog config
+      graylog: graylog || null,
+      logApi: logApi || null
     };
     
     clients.push(newClient);
@@ -51,24 +55,31 @@ router.post('/clients', (req, res) => {
 // Update a client
 router.put('/clients/:id', (req, res) => {
   try {
-    const { name, url, description } = req.body;
+    const { name, url, description, graylog, logApi } = req.body; // Added logApi to destructuring
     const clientId = parseInt(req.params.id);   
+    
     // Basic validation
     if (!name || !url) {
       return res.status(400).json({ success: false, message: 'Name and URL are required' });
     }  
+    
     const clients = getClients();
     const clientIndex = clients.findIndex(c => c.id === clientId); 
+    
     if (clientIndex === -1) {
       return res.status(404).json({ success: false, message: 'Client not found' });
     } 
+    
     // Update client
     clients[clientIndex] = { 
       ...clients[clientIndex],
       name, 
       url, 
-      description: description || clients[clientIndex].description 
+      description: description || clients[clientIndex].description,
+      graylog: graylog || clients[clientIndex].graylog || null,
+      logApi: logApi || clients[clientIndex].logApi || null
     }; 
+    
     // Write updated clients to file
     writeClientsToFile(clients); 
     res.json({ success: true, client: clients[clientIndex] });
@@ -84,9 +95,11 @@ router.delete('/clients/:id', (req, res) => {
     const clientId = parseInt(req.params.id);
     const clients = getClients();
     const filteredClients = clients.filter(c => c.id !== clientId); 
+    
     if (filteredClients.length === clients.length) {
       return res.status(404).json({ success: false, message: 'Client not found' });
     }
+    
     // Write updated clients to file
     writeClientsToFile(filteredClients); 
     res.json({ success: true, message: 'Client deleted successfully' });
