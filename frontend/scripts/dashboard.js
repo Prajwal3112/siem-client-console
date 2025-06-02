@@ -1,14 +1,25 @@
 const clientHistory = {};
 let newsTickerPaused = false;
 let lastNewsUpdate = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
   // Check authentication
-  const authenticated = await window.__auth.checkAuth();
-  if (!authenticated) {
+  const authData = await window.__auth.checkAuth();
+  if (!authData.authenticated) {
     window.location.href = "/login.html";
     return;
   }
 
+  const role = authData.role;
+  const userId = authData.username;
+
+  // Update welcome message based on role
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  if (role === 'superadmin') {
+    welcomeMessage.textContent = 'Welcome Back, Super Admin!';
+  } else {
+    welcomeMessage.textContent = `Welcome Back, ${userId}!`;
+  }
   // Initialize UI elements
   initializeUI();
   // Set up modal close handlers
@@ -17,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupFormHandlers();
   // Load clients for desktop view
   await loadClients();
-  //Leaderboard dashboard
+  //leaderboard dashboard
   await updateLeaderboard();
 
    //news ticker
@@ -103,51 +114,6 @@ function initializeUI() {
   });
 }
 
-function initializeEventListeners() {
-  // Navigation buttons
-  document
-    .getElementById("logoutButton")
-    ?.addEventListener("click", window.__auth.logout);
-  document
-    .getElementById("refreshBtn")
-    ?.addEventListener("click", () => window.location.reload());
-  document
-    .getElementById("manageClientsBtn")
-    ?.addEventListener("click", toggleManagementView);
-
-  // Search functionality
-  document
-    .getElementById("searchClientBtn")
-    ?.addEventListener("click", searchClient);
-  document
-    .getElementById("clientSearch")
-    ?.addEventListener("keyup", function (e) {
-      if (e.key === "Enter") searchClient();
-    });
-
-  // Popup close button
-  document
-    .querySelector(".close-popup")
-    ?.addEventListener("click", closeSearchPopup);
-}
-
-function toggleManagementView() {
-  const desktopView = document.getElementById("dashboardView");
-  const managementView = document.getElementById("managementView");
-  if (desktopView.classList.contains("hidden")) {
-    // Switch to desktop view
-    managementView.classList.add("hidden");
-    desktopView.classList.remove("hidden");
-    document.getElementById("manageClientsBtn").innerHTML =
-      "<span>⚙</span> Manage Clients";
-  } else {
-    desktopView.classList.add("hidden");
-    managementView.classList.remove("hidden");
-    document.getElementById("manageClientsBtn").innerHTML =
-      "<span>⌂</span> Desktop View";
-    loadClientsTable();
-  }
-}
 function setupModalCloseHandlers() {
   document.querySelectorAll(".modal").forEach((modal) => {
     modal.addEventListener("click", (e) => {
@@ -941,4 +907,93 @@ function setupTickerControls() {
       document.getElementById('refreshNewsBtn').textContent = '⟳';
     }
   });
+}
+
+
+async function toggleManagementView() {
+  const desktopView = document.getElementById("dashboardView");
+  const managementView = document.getElementById("managementView");
+  const superAdminView = document.getElementById("superAdminView");
+  
+  if (desktopView.classList.contains("hidden")) {
+    // Switch to desktop view
+    managementView.classList.add("hidden");
+    superAdminView.classList.add("hidden");
+    desktopView.classList.remove("hidden");
+    document.getElementById("manageClientsBtn").innerHTML =
+      "<span>⚙</span> Manage Clients";
+  } else {
+    const authData = await window.__auth.checkAuth();
+    if (authData.role === 'superadmin') {
+      desktopView.classList.add("hidden");
+      managementView.classList.add("hidden");
+      superAdminView.classList.remove("hidden");
+      document.getElementById("manageClientsBtn").innerHTML =
+        "<span>⌂</span> Desktop View";
+      loadAdminsAndClients();
+    } else {
+      desktopView.classList.add("hidden");
+      managementView.classList.remove("hidden");
+      superAdminView.classList.add("hidden");
+      document.getElementById("manageClientsBtn").innerHTML =
+        "<span>⌂</span> Desktop View";
+      loadClientsTable();
+    }
+  }
+}
+
+async function loadAdminsAndClients() {
+  const tableBody = document.getElementById("adminsTableBody");
+  if (!tableBody) return;
+  tableBody.innerHTML = '<tr><td colspan="3">Loading admins...</td></tr>';
+  
+  try {
+    const response = await fetch("/api/admin/admins", { credentials: "include" });
+    if (!response.ok) throw new Error("Failed to load admins");
+    const admins = await response.json();
+    if (admins.length === 0) {
+      tableBody.innerHTML =
+        '<tr><td colspan="3">No admins found.</td></tr>';
+      return;
+    }
+    tableBody.innerHTML = "";
+    admins.forEach(admin => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${admin.adminId}</td>
+        <td>
+          <select class="admin-clients-dropdown">
+            ${admin.clients.map(client => 
+              `<option value="${client.id}">${client.name}</option>`
+            ).join('')}
+          </select>
+        </td>
+        <td class="table-actions">
+          <button class="table-btn view-admin-client-btn" data-admin-id="${admin.adminId}">View Client</button>
+          <button class="table-btn edit-admin-btn" data-admin-id="${admin.adminId}">Edit Admin</button>
+        </td>
+      `;
+      tableBody.appendChild(row);
+    });
+    
+    // Add event listeners for admin client buttons
+    document.querySelectorAll('.view-admin-client-btn').forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const adminId = this.dataset.adminId;
+        const clientId = this.parentElement.previousElementSibling.querySelector('select').value;
+        await viewAdminClient(adminId, clientId);
+      });
+    });
+    
+    document.querySelectorAll('.edit-admin-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const adminId = this.dataset.adminId;
+        showEditAdminModal(adminId);
+      });
+    });
+  } catch (error) {
+    console.error("Error loading admins:", error);
+    tableBody.innerHTML =
+      '<tr><td colspan="3">Error loading admins. Try refreshing the page.</td></tr>';
+  }
 }

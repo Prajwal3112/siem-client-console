@@ -1,8 +1,6 @@
-// backend/routes/news.js
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { parseString } = require('xml2js');
 const Parser = require('rss-parser');
 const parser = new Parser();
 
@@ -132,7 +130,8 @@ function getFallbackNews() {
     {
       title: "AI-Driven Malware Capable of Evading Detection Found in Wild",
       url: "#"
-    },{
+    },
+    {
       title: "Cybersecurity Spending Expected to Cross $200B Globally by Year-End",
       url: "#"
     }

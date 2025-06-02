@@ -4,37 +4,45 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const { authMiddleware } = require('../middleware/auth');
 
-// Get clients from file
 const getClients = () => {
   try {
-    const clients = require('../config/clients');
-    return clients;
+    return require('../config/clients');
   } catch (error) {
     console.error('Error reading clients:', error);
     return [];
   }
 };
 
-// GET all clients - this endpoint is protected by the auth middleware
-router.get('/', (req, res) => {
+router.get('/', authMiddleware, (req, res) => {
   try {
     const clients = getClients();
-    res.json(clients);
+    if (req.user.role === 'superadmin') {
+      res.json(clients);
+    } else {
+      const adminClients = clients.filter(client => client.adminId === req.user.username);
+      res.json(adminClients);
+    }
   } catch (error) {
     console.error('Error fetching clients:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch clients' });
   }
 });
 
-// GET a specific client by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', authMiddleware, (req, res) => {
   try {
     const clients = getClients();
-    const client = clients.find(c => c.id === parseInt(req.params.id));   
+    const client = clients.find(c => c.id === parseInt(req.params.id));
+    
     if (!client) {
       return res.status(404).json({ success: false, message: 'Client not found' });
-    }   
+    }
+
+    if (req.user.role === 'admin' && client.adminId !== req.user.username) {
+      return res.status(403).json({ success: false, message: 'You are not authorized to view this client' });
+    }
+    
     res.json(client);
   } catch (error) {
     console.error('Error fetching client:', error);
@@ -42,7 +50,6 @@ router.get('/:id', (req, res) => {
   }
 });
 
-// New endpoint to get Graylog logs count for a client
 router.get('/:id/logs', async (req, res) => {
   try {
     const clients = getClients();
@@ -122,51 +129,48 @@ router.get('/:id/logs', async (req, res) => {
   }
 });
 
-///////////////
-// Add this new route after the existing routes
 router.get('/:id/logstats', async (req, res) => {
-    try {
-        const clients = getClients();
-        const client = clients.find(c => c.id === parseInt(req.params.id));
-        
-        if (!client || !client.logApi) {
-            return res.status(404).json({ success: false, message: 'Client or Log API config not found' });
-        }
-
-        // First, get the token
-        const tokenResponse = await fetch(`http://${client.logApi.host}/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: client.logApi.username,
-                password: client.logApi.password
-            })
-        });
-
-        const tokenData = await tokenResponse.json();
-        if (!tokenData.token) {
-            throw new Error('Failed to get authentication token');
-        }
-
-        // Then get the log stats
-        const statsResponse = await fetch(`http://${client.logApi.host}/api/logs/stats/overview?timeRange=24h`, {
-            headers: {
-                'Authorization': `Bearer ${tokenData.token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const statsData = await statsResponse.json();
-        res.json({
-            success: true,
-            stats: statsData
-        });
-        
-    } catch (error) {
-        console.error('Error fetching log stats:', error);
-        res.status(500).json({ success: false, message: 'Failed to fetch log statistics' });
+  try {
+    const clients = getClients();
+    const client = clients.find(c => c.id === parseInt(req.params.id));
+    
+    if (!client || !client.logApi) {
+      return res.status(404).json({ success: false, message: 'Client or Log API config not found' });
     }
+
+    // First, get the token
+    const tokenResponse = await fetch(`http://${client.logApi.host}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: client.logApi.username,
+        password: client.logApi.password
+      })
+    });
+
+    const tokenData = await tokenResponse.json();
+    if (!tokenData.token) {
+      throw new Error('Failed to get authentication token');
+    }
+
+    // Then get the log stats
+    const statsResponse = await fetch(`http://${client.logApi.host}/api/logs/stats/overview?timeRange=24h`, {
+      headers: {
+        'Authorization': `Bearer ${tokenData.token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const statsData = await statsResponse.json();
+    res.json({
+      success: true,
+      stats: statsData
+    });
+    
+  } catch (error) {
+    console.error('Error fetching log stats:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch log statistics' });
+  }
 });
-/////////////////
 
 module.exports = router;
