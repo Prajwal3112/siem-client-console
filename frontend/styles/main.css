@@ -113,7 +113,7 @@ button:hover {
 
 .login-card {
     background: white;
-    padding: 40px;
+    padding: 20px;
     border-radius: 12px;
     border: 1px solid #f3f2f2;
     box-shadow: 0 15px 30px rgba(10, 10, 10, 0.89);
@@ -132,9 +132,9 @@ button:hover {
     top: 0;
     right: 0;
     width: 120ch;
-    height: 70px;
+    height: 60px;
     background: rgba(205, 29, 29, 0.238);
-    transform: rotate(-6deg);
+    transform: rotate(-8deg);
     z-index: 0;
     pointer-events: none;
     border-radius: 8px;
@@ -147,7 +147,7 @@ button:hover {
     left: 0;
     width: 200ch;
     height: 200px;
-    background: rgba(51, 0, 255, 0.13);
+    background: rgba(40, 0, 255, 0.13);
     transform: rotate(-8deg);
     z-index: 0;
     pointer-events: none;
@@ -1381,6 +1381,7 @@ button:hover {
     backdrop-filter: blur(10px);
     min-height: 100vh;
     color: white;
+    
 }
 
 /* Dashboard Grid Layout */
@@ -1853,17 +1854,90 @@ button:hover {
     margin-bottom: 5px;
     font-weight: 600;
 }
-
-.panel-header {
+/* Admin Modal backdrop */
+.admin-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
-.panel-header h2 {
-  margin: 0;
+/* Hidden by default */
+.hidden {
+  display: none;
 }
 
-.panel-header .action-btn {
-  margin-left: auto;
+/* Admin Modal box */
+.admin-modal-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Close button */
+.admin-close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+}
+
+.admin-close-modal:hover {
+  color: #e60000;
+}
+
+/* Modal title */
+.admin-modal-title {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 24px;
+}
+
+/* Form styling */
+.admin-modal-form .admin-form-group {
+  margin-bottom: 15px;
+}
+.admin-modal-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: black; /* <-- added line */
+}
+
+.admin-modal-form input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Submit button */
+.admin-submit-btn {
+  display: block;
+  width: 100%;
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.admin-submit-btn:hover {
+  background-color: #0056b3;
 }

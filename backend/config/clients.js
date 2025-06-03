@@ -15,9 +15,8 @@ module.exports = [
             "username": "admin",
             "password": "admin"
         },
-         "adminId": "admin"
+        "adminId": "admin"
     },
-
     {
         "id": 2,
         "name": "Yavatmal Bank",
@@ -29,9 +28,8 @@ module.exports = [
             "password": "Virtual%09",
             "streamId": "67d53d99e9cf8f1270270d1f"
         },
-         "adminId": "admin"
+        "adminId": "admin"
     },
-
     {
         "id": 3,
         "name": "VGIL PUBLIC",
@@ -43,9 +41,8 @@ module.exports = [
             "password": "Virtual%09",
             "streamId": "67c7e72cb78cd271d6481222"
         },
-         "adminId": "admin2"
+        "adminId": "admin2"
     },
-
     {
         "id": 4,
         "name": "Testing Server",
@@ -63,5 +60,23 @@ module.exports = [
             "password": "admin"
         },
         "adminId": "admin2"
+    },
+    {
+        "id": 5,
+        "name": "goa_server",
+        "url": "http://10.156.170.81:3000",
+        "description": "goa_server",
+        "graylog": {
+            "host": "http://10.156.170.80:9000",
+            "username": "admin",
+            "password": "Virtual%09",
+            "streamId": "683ea1c2342f7140241a5e94"
+        },
+        "logApi": {
+            "host": "http://10.156.170.81:3000",
+            "username": "admin",
+            "password": "admin"
+        },
+        "adminId": "prajwal"
     }
 ];

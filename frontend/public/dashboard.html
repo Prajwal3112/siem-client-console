@@ -87,9 +87,10 @@
         </div>
       </div>
 
-      <div id="superAdminView" class="management-panel hidden">
+            <div id="superAdminView" class="management-panel hidden">
         <div class="panel-header">
           <h2>Admin Management</h2>
+          <button id="addAdminBtn" class="action-btn">+ Add New Admin</button>
         </div>
         <div class="admins-table-container">
           <table class="admins-table">
@@ -104,112 +105,128 @@
               <!-- Admins and their clients will be loaded here dynamically -->
             </tbody>
           </table>
+        </div></div></div>
+
+        <div id="addAdminModal" class="admin-modal hidden">
+          <div class="admin-modal-content">
+            <span class="admin-close-modal">&times;</span>
+            <h2 class="admin-modal-title">Add New Admin</h2>
+            <form id="addAdminForm" class="admin-modal-form">
+              <div class="admin-form-group">
+                <label for="adminUsername">Admin Username:</label>
+                <input type="text" id="adminUsername" required>
+              </div>
+              <div class="admin-form-group">
+                <label for="adminPassword">Admin Password:</label>
+                <input type="password" id="adminPassword" required>
+              </div>
+              <button type="submit" class="admin-submit-btn">Add Admin</button>
+            </form>
+          </div>
         </div>
-        <button id="addAdminBtn" class="action-btn">+ Add New Admin</button>
-      </div>
-    </div>
 
-    <div id="clientActionsModal" class="modal hidden">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2 id="clientModalTitle">Client Actions</h2>
-        <div class="modal-actions">
-          <button id="viewClientBtn" class="action-btn">View Dashboard</button>
-          <button id="editClientBtn" class="action-btn">Edit Client</button>
-          <button id="deleteClientBtn" class="action-btn danger">Delete Client</button>
+
+      <div id="clientActionsModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2 id="clientModalTitle">Client Actions</h2>
+          <div class="modal-actions">
+            <button id="viewClientBtn" class="action-btn">View Dashboard</button>
+            <button id="editClientBtn" class="action-btn">Edit Client</button>
+            <button id="deleteClientBtn" class="action-btn danger">Delete Client</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="editClientModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2>Edit Client</h2>
+          <form id="editClientForm">
+            <input type="hidden" id="editClientId">
+            <div class="form-group">
+              <label for="editClientName">Client Name:</label>
+              <input type="text" id="editClientName" required>
+            </div>
+            <div class="form-group">
+              <label for="editClientUrl">Dashboard URL:</label>
+              <input type="url" id="editClientUrl" required>
+            </div>
+            <div class="form-group">
+              <label for="editClientDescription">Description:</label>
+              <input type="text" id="editClientDescription">
+            </div>
+            <div class="form-group">
+              <label>Graylog Configuration</label>
+              <input type="text" id="editGraylogHost" placeholder="Host:Port">
+              <input type="text" id="editGraylogUsername" placeholder="Username">
+              <input type="password" id="editGraylogPassword" placeholder="Password">
+              <input type="text" id="editGraylogStreamId" placeholder="Stream ID">
+            </div>
+            <div class="form-group">
+              <label>Log API Configuration</label>
+              <input type="text" id="editLogApiHost" placeholder="Host:Port">
+              <input type="text" id="editLogApiUsername" placeholder="Username">
+              <input type="password" id="editLogApiPassword" placeholder="Password">
+            </div>
+            <button type="submit" class="submit-btn">Update Client</button>
+          </form>
+        </div>
+      </div>
+
+      <div id="addClientModal" class="modal hidden">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2>Add New Client</h2>
+          <form id="addClientForm">
+            <div class="form-group">
+              <label for="clientName">Client Name:</label>
+              <input type="text" id="clientName" required>
+            </div>
+            <div class="form-group">
+              <label for="clientUrl">Dashboard URL:</label>
+              <input type="url" id="clientUrl" required>
+            </div>
+            <div class="form-group">
+              <label for="clientDescription">Description:</label>
+              <input type="text" id="clientDescription">
+            </div>
+            <div class="form-group">
+              <label>Graylog Configuration</label>
+              <input type="text" id="graylogHost" placeholder="Host:Port">
+              <input type="text" id="graylogUsername" placeholder="Username">
+              <input type="password" id="graylogPassword" placeholder="Password">
+              <input type="text" id="graylogStreamId" placeholder="Stream ID">
+            </div>
+            <div class="form-group">
+              <label>Log API Configuration</label>
+              <input type="text" id="logApiHost" placeholder="Host:Port">
+              <input type="text" id="logApiUsername" placeholder="Username">
+              <input type="password" id="logApiPassword" placeholder="Password">
+            </div>
+            <button type="submit" class="submit-btn">Add Client</button>
+          </form>
         </div>
       </div>
     </div>
-
-    <div id="editClientModal" class="modal hidden">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Edit Client</h2>
-        <form id="editClientForm">
-          <input type="hidden" id="editClientId">
-          <div class="form-group">
-            <label for="editClientName">Client Name:</label>
-            <input type="text" id="editClientName" required>
-          </div>
-          <div class="form-group">
-            <label for="editClientUrl">Dashboard URL:</label>
-            <input type="url" id="editClientUrl" required>
-          </div>
-          <div class="form-group">
-            <label for="editClientDescription">Description:</label>
-            <input type="text" id="editClientDescription">
-          </div>
-          <div class="form-group">
-            <label>Graylog Configuration</label>
-            <input type="text" id="editGraylogHost" placeholder="Host:Port">
-            <input type="text" id="editGraylogUsername" placeholder="Username">
-            <input type="password" id="editGraylogPassword" placeholder="Password">
-            <input type="text" id="editGraylogStreamId" placeholder="Stream ID">
-          </div>
-          <div class="form-group">
-            <label>Log API Configuration</label>
-            <input type="text" id="editLogApiHost" placeholder="Host:Port">
-            <input type="text" id="editLogApiUsername" placeholder="Username">
-            <input type="password" id="editLogApiPassword" placeholder="Password">
-          </div>
-          <button type="submit" class="submit-btn">Update Client</button>
-        </form>
+  
+    <footer class="dashboard-footer">
+      <div class="news-ticker-container">
+        <div id="newsTicker" class="news-ticker">
+          <div class="ticker-content"></div>
+        </div>
+        <div class="ticker-controls">
+          <button id="pauseTickerBtn" title="Pause">⏸</button>
+          <button id="refreshNewsBtn" title="Refresh">⟳</button>
+        </div>
       </div>
-    </div>
-
-    <div id="addClientModal" class="modal hidden">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Add New Client</h2>
-        <form id="addClientForm">
-          <div class="form-group">
-            <label for="clientName">Client Name:</label>
-            <input type="text" id="clientName" required>
-          </div>
-          <div class="form-group">
-            <label for="clientUrl">Dashboard URL:</label>
-            <input type="url" id="clientUrl" required>
-          </div>
-          <div class="form-group">
-            <label for="clientDescription">Description:</label>
-            <input type="text" id="clientDescription">
-          </div>
-          <div class="form-group">
-            <label>Graylog Configuration</label>
-            <input type="text" id="graylogHost" placeholder="Host:Port">
-            <input type="text" id="graylogUsername" placeholder="Username">
-            <input type="password" id="graylogPassword" placeholder="Password">
-            <input type="text" id="graylogStreamId" placeholder="Stream ID">
-          </div>
-          <div class="form-group">
-            <label>Log API Configuration</label>
-            <input type="text" id="logApiHost" placeholder="Host:Port">
-            <input type="text" id="logApiUsername" placeholder="Username">
-            <input type="password" id="logApiPassword" placeholder="Password">
-          </div>
-          <button type="submit" class="submit-btn">Add Client</button>
-        </form>
+      <div class="footer-info">
+        <span>SIEM Console v1.0</span>
+        <b><span id="currentTime"></span></b>
+        <span id="newsSource"></span>
       </div>
-    </div>
+    </footer>
   </div>
-  
-  <footer class="dashboard-footer">
-    <div class="news-ticker-container">
-      <div id="newsTicker" class="news-ticker">
-        <div class="ticker-content"></div>
-      </div>
-      <div class="ticker-controls">
-        <button id="pauseTickerBtn" title="Pause">⏸</button>
-        <button id="refreshNewsBtn" title="Refresh">⟳</button>
-      </div>
-    </div>
-    <div class="footer-info">
-      <span>SIEM Console v1.0</span>
-      <b><span id="currentTime"></span></b>
-      <span id="newsSource"></span>
-    </div>
-  </footer>
-  
   <script src="../scripts/auth.js"></script>
   <script src="../scripts/dashboard.js"></script>
 </body>

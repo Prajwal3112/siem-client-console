@@ -22,6 +22,8 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "node-cache": "^5.1.2",
+    "otplib": "^12.0.1",
+    "qrcode": "^1.5.4",
     "rss-parser": "^3.13.0",
     "twilio": "^5.7.0",
     "xml2js": "^0.6.2"

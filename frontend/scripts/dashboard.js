@@ -35,7 +35,11 @@ document.addEventListener("DOMContentLoaded", async () => {
  initializeNewsTicker();
   setupTickerControls();
 
- 
+ const addAdminForm = document.getElementById("addAdminForm");
+    if (addAdminForm) {
+        addAdminForm.addEventListener("submit", addAdminSubmitHandler);
+    }
+
 
      // Initialize leaderboard toggle
     const toggleBtn = document.getElementById('leaderboardToggleBtn');
@@ -70,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         dropdown.addEventListener('click', function(e) {
             e.stopPropagation();
         });
+        
     }
 
 });
@@ -88,19 +93,17 @@ function initializeUI() {
   document
     .getElementById("addClientBtn")
     .addEventListener("click", showAddClientModal);
+    document
+    .getElementById("addAdminBtn")
+    .addEventListener("click", showAddAdminModal);
 
   // Add search functionality
-  document
-    .getElementById("searchClientBtn")
-    .addEventListener("click", searchClient);
-  document
-    .getElementById("clientSearch")
-    .addEventListener("keyup", function (e) {
+  document.getElementById("searchClientBtn").addEventListener("click", searchClient);
+  document.getElementById("clientSearch").addEventListener("keyup", function (e) {
       if (e.key === "Enter") searchClient();
     });
-  document
-    .querySelector(".close-popup")
-    .addEventListener("click", closeSearchPopup); 
+    
+  document.querySelector(".close-popup").addEventListener("click", closeSearchPopup); 
   // Event delegation for dynamically created buttons
   document.addEventListener("click", function (e) {
     // Handle Open Dashboard buttons in search results
@@ -112,8 +115,16 @@ function initializeUI() {
       }
     }
   });
+  
 }
+document.addEventListener("DOMContentLoaded", function () {
+    const closeBtn = document.querySelector(".admin-close-modal");
+    const modal = document.getElementById("addAdminModal");
 
+    closeBtn.addEventListener("click", function () {
+      modal.classList.add("hidden");
+    });
+  });
 function setupModalCloseHandlers() {
   document.querySelectorAll(".modal").forEach((modal) => {
     modal.addEventListener("click", (e) => {
@@ -724,18 +735,6 @@ async function fetchClients() {
   return await response.json();
 }
 
-// Add this with your other utility functions
-function getRandomColor() {
-  const colors = [
-    "linear-gradient(135deg, #3498db, #2ecc71)",
-    "linear-gradient(135deg, #e74c3c, #f39c12)",
-    "linear-gradient(135deg, #9b59b6, #3498db)",
-    "linear-gradient(135deg, #1abc9c, #2ecc71)",
-    "linear-gradient(135deg, #f1c40f, #e67e22)",
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
-
 // Helper function to prevent XSS
 function escapeHtml(text) {
   if (!text) return "";
@@ -942,6 +941,15 @@ async function toggleManagementView() {
   }
 }
 
+function showAddAdminModal() {
+  const modal = document.getElementById("addAdminModal");
+  const form = document.getElementById("addAdminForm");
+  if (form) {
+    form.reset(); // Reset form
+  }
+  modal.classList.remove("hidden"); // Show modal
+}
+
 async function loadAdminsAndClients() {
   const tableBody = document.getElementById("adminsTableBody");
   if (!tableBody) return;
@@ -995,5 +1003,36 @@ async function loadAdminsAndClients() {
     console.error("Error loading admins:", error);
     tableBody.innerHTML =
       '<tr><td colspan="3">Error loading admins. Try refreshing the page.</td></tr>';
+  }
+}
+async function addAdminSubmitHandler(e) {
+  e.preventDefault();
+  const username = document.getElementById("adminUsername").value.trim();
+  const password = document.getElementById("adminPassword").value.trim();
+
+  if (!username || !password) {
+    showMessage("Username and password are required", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/admin/admins", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      showMessage("Admin added successfully", "success");
+      document.getElementById("addAdminModal").classList.add("hidden");
+      loadAdminsAndClients();
+    } else {
+      showMessage(data.message || "Failed to add admin", "error");
+    }
+  } catch (error) {
+    console.error("Error adding admin:", error);
+    showMessage("Error adding admin", "error");
   }
 }
