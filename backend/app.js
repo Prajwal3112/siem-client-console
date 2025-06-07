@@ -13,6 +13,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 7000;
 
+
 // Security middleware
 app.use(helmet());
 app.use(cors({
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/clients', authMiddleware, clientsRoutes);
 app.use('/api/admin', authMiddleware, adminRoutes);
 app.use('/api/news', newsRoutes);
+
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '../frontend/public')));

@@ -22,6 +22,27 @@ const writeClientsToFile = (clients) => {
   fs.writeFileSync(clientsFilePath, clientsContent, 'utf8');
 };
 
+///////////
+
+const adminsFilePath = path.join(__dirname, '../config/admins.js');
+
+const getAdmins = () => {
+  try {
+    delete require.cache[require.resolve('../config/admins')];
+    return require('../config/admins');
+  } catch (error) {
+    console.error('Error reading admins:', error);
+    return [];
+  }
+};
+
+const writeAdminsToFile = (admins) => {
+  const adminsContent = `module.exports = ${JSON.stringify(admins, null, 4)};`;
+  fs.writeFileSync(adminsFilePath, adminsContent, 'utf8');
+};
+
+////////////
+
 router.post('/clients', [authMiddleware, adminAuthMiddleware], (req, res) => {
   try {
     const { name, url, description, graylog, logApi } = req.body;
@@ -104,30 +125,18 @@ router.delete('/clients/:id', [authMiddleware, adminAuthMiddleware], (req, res) 
 
 router.get('/admins', [authMiddleware, superAdminAuthMiddleware], (req, res) => {
   try {
-    const clients = getClients();
-    const admins = [...new Set(clients.map(client => ({
-      adminId: client.adminId,
-      username: client.adminId
-    })))];
-    
-    // Fetch admin credentials from .env
-    const dotenv = require('dotenv');
-    dotenv.config();
-    const adminsWithCredentials = admins.map(admin => {
-      return {
-        adminId: admin.adminId,
-        clients: clients.filter(client => client.adminId === admin.adminId),
-        username: process.env[`ADMIN_USERNAME_${admin.adminId}`] || '',
-        password: process.env[`ADMIN_PASSWORD_${admin.adminId}`] || ''
-      };
-    });
-    
-    res.json(adminsWithCredentials);
+    const admins = getAdmins();
+    if (!admins) {
+      return res.status(404).json({ success: false, message: 'No admins found' });
+    }
+    res.json(admins);
   } catch (error) {
     console.error('Error fetching admins:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch admins' });
   }
 });
+    
+    /////////////
 
 router.get('/admins/:adminId/clients', [authMiddleware, superAdminAuthMiddleware], (req, res) => {
   try {
@@ -142,15 +151,14 @@ router.get('/admins/:adminId/clients', [authMiddleware, superAdminAuthMiddleware
   }
 });
 
-router.post('/admins', [authMiddleware, superAdminAuthMiddleware], (req, res) => {
+router.post('/admins', [authMiddleware, superAdminAuthMiddleware], async (req, res) => {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Username and password are required' });
+    const { username, password, name, email, organization, city, state } = req.body;
+    if (!username || !password || !name || !email || !organization || !city || !state) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
     }
     
     // Add new admin credentials to .env
-    const fs = require('fs');
     const dotenv = require('dotenv');
     const envPath = path.join(__dirname, '../.env');
     const envConfig = dotenv.parse(fs.readFileSync(envPath));
@@ -171,13 +179,24 @@ ADMIN_PASSWORD_${username}=${password}
     fs.appendFileSync(envPath, newEnvContent, 'utf8');
     dotenv.config();
     
+    // Add admin details to admins.js
+    const admins = getAdmins();
+    const newAdmin = { 
+      id: admins.length > 0 ? Math.max(...admins.map(a => a.id)) + 1 : 1,
+      name,
+      email,
+      organization,
+      city,
+      state
+    };
+    
+    admins.push(newAdmin);
+    writeAdminsToFile(admins);
+    
     res.status(201).json({ success: true, message: 'Admin created successfully' });
   } catch (error) {
     console.error('Error creating admin:', error);
     res.status(500).json({ success: false, message: 'Failed to create admin' });
   }
 });
-
-
-
 module.exports = router;
